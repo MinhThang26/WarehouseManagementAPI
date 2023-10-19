@@ -7,7 +7,7 @@ const dotenv = require("dotenv");
 const app = express();
 
 dotenv.config();
-app.use(bodyParser.json({ limit: "50mb" }));
+
 app.use(cors());
 app.use(morgan("common"));
 
