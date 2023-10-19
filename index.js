@@ -21,3 +21,4 @@ mongoose.connection.once("open", () => {
     }, 300000);
   });
 });
+module.exports = app;
