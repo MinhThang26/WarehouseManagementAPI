@@ -13,6 +13,6 @@ app.use(morgan("common"));
 app.get("/api", (req, res) => {
   res.status(200).json("hello");
 });
-app.listen(8000, () => {
+app.listen(8080, () => {
   console.log("sever is running!");
 });
