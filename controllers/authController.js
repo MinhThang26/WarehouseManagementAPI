@@ -3,10 +3,23 @@ const Admin = require("../models/Admin");
 const Staff = require("../models/Staff");
 const Owner = require("../models/Owner");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const authController = {
+  generateAccessToken: (user) => {
+    return jwt.sign(
+      {
+        id: user.id,
+      },
+      process.env.JWT_ACCESS_KEY,
+      {
+        expiresIn: "2h",
+      }
+    );
+  },
   registerUser: async (req, res) => {
     try {
+      console.log(req.body.username);
       const user = await User.findOne({ username: req.body.username });
       const staff = await Staff.findOne({ username: req.body.username });
       const owner = await Owner.findOne({ username: req.body.username });
@@ -53,7 +66,8 @@ const authController = {
             res.status(404).json("Wrong password");
           }
           if (user && validPassword) {
-            res.status(200).json(user);
+            const accessToken = authController.generateAccessToken(user);
+            res.status(200).json({ user, accessToken });
           }
         } else if (staff) {
           const validPassword = await bcrypt.compare(
@@ -64,7 +78,8 @@ const authController = {
             res.status(404).json("Wrong password");
           }
           if (staff && validPassword) {
-            res.status(200).json(staff);
+            const accessToken = authController.generateAccessToken(staff);
+            res.status(200).json({ staff, accessToken });
           }
         } else if (owner) {
           const validPassword = await bcrypt.compare(
@@ -75,7 +90,8 @@ const authController = {
             res.status(404).json("Wrong password");
           }
           if (owner && validPassword) {
-            res.status(200).json(owner);
+            const accessToken = authController.generateAccessToken(owner);
+            res.status(200).json({ owner, accessToken });
           }
         } else if (admin) {
           const validPassword = await bcrypt.compare(
@@ -86,7 +102,8 @@ const authController = {
             res.status(404).json("Wrong password");
           }
           if (admin && validPassword) {
-            res.status(200).json(admin);
+            const accessToken = authController.generateAccessToken(admin);
+            res.status(200).json({ admin, accessToken });
           }
         } else {
           res.status(404).json("Wrong username");
@@ -95,6 +112,9 @@ const authController = {
     } catch (error) {
       res.status(500).json(error);
     }
+  },
+  logout: async (req, res) => {
+    res.status(200).json("Logged out");
   },
 };
 module.exports = authController;
