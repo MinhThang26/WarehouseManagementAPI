@@ -2,7 +2,7 @@ const User = require("../models/User");
 const Admin = require("../models/Admin");
 const Staff = require("../models/Staff");
 const Owner = require("../models/Owner");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const authController = {
