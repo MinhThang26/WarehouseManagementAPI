@@ -11,8 +11,35 @@ const middlewareController = {
         next();
       });
     } else {
-      res.status(401).json("You're not authorized to access ");
+      res.status(401).json("You're not authorized to access");
     }
+  },
+  verifyTokenIsAdmin: (req, res, next) => {
+    middlewareController.verifyToken(req, res, () => {
+      if (req.user.isAdmin) {
+        next();
+      } else {
+        res.status(403).json("You're not an admin");
+      }
+    });
+  },
+  verifyTokenIsStaff: (req, res, next) => {
+    middlewareController.verifyToken(req, res, () => {
+      if (req.user.isStaff) {
+        next();
+      } else {
+        res.status(403).json("You're not Staff");
+      }
+    });
+  },
+  verifyTokenIsOwner: (req, res, next) => {
+    middlewareController.verifyToken(req, res, () => {
+      if (req.user.isOwner) {
+        next();
+      } else {
+        res.status(403).json("You're not Owner");
+      }
+    });
   },
 };
 module.exports = middlewareController;

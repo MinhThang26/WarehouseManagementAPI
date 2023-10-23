@@ -14,6 +14,10 @@ const adminSchema = mongoose.Schema(
       minlength: 6,
       required: true,
     },
+    isAdmin: {
+      type: Boolean,
+      default: true,
+    },
   },
   { timestamps: true }
 );
