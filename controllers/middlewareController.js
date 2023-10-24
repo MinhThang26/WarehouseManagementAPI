@@ -5,13 +5,13 @@ const middlewareController = {
     if (token) {
       jwt.verify(token, process.env.JWT_ACCESS_KEY, (err, user) => {
         if (err) {
-          res.status(403).json("Token is not valid");
+          res.status(403).json({ message: "Token is not valid" });
         }
         req.user = user;
         next();
       });
     } else {
-      res.status(401).json("You're not authorized to access");
+      res.status(401).json({ message: "You're not authorized to access" });
     }
   },
   verifyTokenIsAdmin: (req, res, next) => {
@@ -19,7 +19,7 @@ const middlewareController = {
       if (req.user.isAdmin) {
         next();
       } else {
-        res.status(403).json("You're not an admin");
+        res.status(403).json({ message: "You're not an admin" });
       }
     });
   },
@@ -28,7 +28,7 @@ const middlewareController = {
       if (req.user.isStaff) {
         next();
       } else {
-        res.status(403).json("You're not Staff");
+        res.status(403).json({ message: "You're not Staff" });
       }
     });
   },
@@ -37,7 +37,7 @@ const middlewareController = {
       if (req.user.isOwner) {
         next();
       } else {
-        res.status(403).json("You're not Owner");
+        res.status(403).json({ message: "You're not Owner" });
       }
     });
   },
