@@ -33,6 +33,10 @@ const staffSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Owner",
     },
+    isActive: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

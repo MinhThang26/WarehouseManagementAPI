@@ -84,7 +84,7 @@ const authController = {
       }
     );
   },
-  registerUser: async (req, res) => {
+  register: async (req, res) => {
     try {
       const status = req.query.status;
       const idOwner = req.query.idOwner;
@@ -169,10 +169,10 @@ const authController = {
       res.status(500).json(error);
     }
   },
-  loginUser: async (req, res) => {
+  login: async (req, res) => {
     try {
       const user = await authController.isUsernameTaken(req.body.username);
-      if (user) {
+      if (user && user.isActive) {
         const validPassword = await bcrypt.compare(
           req.body.password,
           user.password
@@ -190,7 +190,7 @@ const authController = {
           res.status(401).json({ message: "Password is not valid" });
         }
       } else {
-        res.status(401).json({ message: "Password is not valid" });
+        res.status(401).json({ message: "Account has not been activated" });
       }
     } catch (error) {
       res.status(500).json(error);
