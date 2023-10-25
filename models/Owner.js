@@ -44,6 +44,10 @@ const ownerSchema = mongoose.Schema(
         ref: "Staff",
       },
     ],
+    isActive: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
