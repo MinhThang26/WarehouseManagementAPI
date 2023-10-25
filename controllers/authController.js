@@ -50,7 +50,7 @@ const authController = {
         property = "username";
       } else if (email === staff.email) {
         property = "email";
-      } else if (phone === staff.phone) {
+      } else if (parseFloat(phone) === staff.phone) {
         property = "phone";
       }
     }
@@ -59,7 +59,7 @@ const authController = {
         property = "username";
       } else if (email === owner.email) {
         property = "email";
-      } else if (phone === owner.phone) {
+      } else if (parseFloat(phone) === owner.phone) {
         property = "phone";
       }
     }
@@ -114,6 +114,7 @@ const authController = {
           });
 
           const owner = await newOwner.save();
+          console.log();
           res
             .status(200)
             .json({ message: "Successfully registered account", owner });
@@ -172,25 +173,29 @@ const authController = {
   login: async (req, res) => {
     try {
       const user = await authController.isUsernameTaken(req.body.username);
-      if (user && user.isActive) {
-        const validPassword = await bcrypt.compare(
-          req.body.password,
-          user.password
-        );
-        if (validPassword) {
-          const accessToken = await authController.generateAccessToken(user);
-          const { password, ...others } = user._doc;
+      if (user) {
+        if (user.isActive) {
+          const validPassword = await bcrypt.compare(
+            req.body.password,
+            user.password
+          );
+          if (validPassword) {
+            const accessToken = await authController.generateAccessToken(user);
+            const { password, ...others } = user._doc;
 
-          res.status(200).json({
-            message: "Logged in successfully",
-            others: others,
-            accessToken: accessToken,
-          });
+            res.status(200).json({
+              message: "Logged in successfully",
+              others: others,
+              accessToken: accessToken,
+            });
+          } else {
+            res.status(401).json({ message: "Password is not valid" });
+          }
         } else {
-          res.status(401).json({ message: "Password is not valid" });
+          res.status(401).json({ message: "Account has not been activated" });
         }
       } else {
-        res.status(401).json({ message: "Account has not been activated" });
+        res.status(401).json({ message: "Username is not valid" });
       }
     } catch (error) {
       res.status(500).json(error);
