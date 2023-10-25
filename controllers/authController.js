@@ -93,7 +93,7 @@ const authController = {
       );
 
       if (property) {
-        res.status(401).json(property + " has been registered");
+        res.status(401).json({ message: property + " has been registered" });
         return;
       }
 
@@ -110,14 +110,20 @@ const authController = {
         });
 
         const user1 = await newUser.save();
-        res.status(200).json(user1);
+        res
+          .status(200)
+          .json({ message: "Successfully registered account", user: user1 });
       } else if (
         req.body.password == undefined ||
         req.body.confirmPassword == undefined
       ) {
-        res.status(401).json("Missing password or confirm password");
+        res
+          .status(401)
+          .json({ message: "Missing password or confirm password" });
       } else {
-        res.status(401).json("Password and confirm password are not the same");
+        res
+          .status(401)
+          .json({ message: "Password and confirm password are not the same" });
       }
     } catch (error) {
       res.status(500).json(error);
@@ -135,12 +141,16 @@ const authController = {
           const accessToken = await authController.generateAccessToken(user);
           const { password, ...others } = user._doc;
 
-          res.status(200).json({ others, accessToken });
+          res.status(200).json({
+            message: "Logged in successfully",
+            others: others,
+            accessToken: accessToken,
+          });
         } else {
-          res.status(401).json("Password is not valid");
+          res.status(401).json({ message: "Password is not valid" });
         }
       } else {
-        res.status(401).json("Username is not valid");
+        res.status(401).json({ message: "Password is not valid" });
       }
     } catch (error) {
       res.status(500).json(error);
