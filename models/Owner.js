@@ -23,7 +23,6 @@ const ownerSchema = mongoose.Schema(
     },
     address: {
       type: String,
-      required: true,
     },
     phone: {
       type: Number,
@@ -33,6 +32,18 @@ const ownerSchema = mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    warehouses: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Warehouse",
+      },
+    ],
+    staffs: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff",
+      },
+    ],
   },
   { timestamps: true }
 );
