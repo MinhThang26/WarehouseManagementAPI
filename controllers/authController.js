@@ -88,125 +88,83 @@ const authController = {
     try {
       const status = req.query.status;
       const idOwner = req.query.idOwner;
-      {
-        const property = await authController.isUsernameOrEmailOrPhoneTaken(
-          req.body.username,
-          req.body.email,
-          req.body.phone
-        );
 
-        if (property) {
-          res.status(401).json({ message: property + " has been registered" });
-          return;
-        }
+      const property = await authController.isUsernameOrEmailOrPhoneTaken(
+        req.body.username,
+        req.body.email,
+        req.body.phone
+      );
 
-        if (req.body.password === req.body.confirmPassword) {
-          const salt = await bcrypt.genSalt(10);
-          const hashed = await bcrypt.hash(req.body.password, salt);
-
-          if (status == 0) {
-            const newOwner = await new Owner({
-              username: req.body.username,
-              email: req.body.email,
-              address: req.body.address,
-              phone: req.body.phone,
-              password: hashed,
-            });
-
-            const owner = await newOwner.save();
-            res
-              .status(200)
-              .json({ message: "Successfully registered account", owner });
-          } else if (status == 1) {
-            if (idOwner) {
-              const newStaff = await new Staff({
-                username: req.body.username,
-                email: req.body.email,
-                phone: req.body.phone,
-                password: hashed,
-                owner: idOwner,
-              });
-
-              const staff = await newStaff.save();
-              const owner = await Owner.findById(idOwner);
-
-              await owner.updateOne({ $push: { staffs: staff._id } });
-              res
-                .status(200)
-                .json({ message: "Successfully registered account", staff });
-            } else {
-              res.status(404).json({ message: "Missing owner data field" });
-            }
-          } else if (status == 2) {
-            const newUser = await new User({
-              username: req.body.username,
-              email: req.body.email,
-              address: req.body.address,
-              phone: req.body.phone,
-              password: hashed,
-            });
-
-            const user = await newUser.save();
-            res
-              .status(200)
-              .json({ message: "Successfully registered account", user });
-          } else {
-            res.status(404).json({ message: "Not Found" });
-          }
-        } else if (
-          req.body.password == undefined ||
-          req.body.confirmPassword == undefined
-        ) {
-          res
-            .status(401)
-            .json({ message: "Missing password or confirm password" });
-        } else {
-          res.status(401).json({
-            message: "Password and confirm password are not the same",
-          });
-        }
+      if (property) {
+        res.status(401).json({ message: property + " has been registered" });
+        return;
       }
-      // {
-      //   const property = await authController.isUsernameOrEmailOrPhoneTaken(
-      //     req.body.username,
-      //     req.body.email,
-      //     req.body.phone
-      //   );
 
-      //   if (property) {
-      //     res.status(401).json({ message: property + " has been registered" });
-      //     return;
-      //   }
+      if (req.body.password === req.body.confirmPassword) {
+        const salt = await bcrypt.genSalt(10);
+        const hashed = await bcrypt.hash(req.body.password, salt);
 
-      //   if (req.body.password === req.body.confirmPassword) {
-      //     const salt = await bcrypt.genSalt(10);
-      //     const hashed = await bcrypt.hash(req.body.password, salt);
+        if (status == 0) {
+          const newOwner = await new Owner({
+            username: req.body.username,
+            email: req.body.email,
+            address: req.body.address,
+            phone: req.body.phone,
+            password: hashed,
+          });
 
-      //     const newUser = await new User({
-      //       username: req.body.username,
-      //       email: req.body.email,
-      //       address: req.body.address,
-      //       phone: req.body.phone,
-      //       password: hashed,
-      //     });
+          const owner = await newOwner.save();
+          res
+            .status(200)
+            .json({ message: "Successfully registered account", owner });
+        } else if (status == 1) {
+          if (idOwner) {
+            const newStaff = await new Staff({
+              username: req.body.username,
+              email: req.body.email,
+              phone: req.body.phone,
+              password: hashed,
+              owner: idOwner,
+            });
 
-      //     const user = await newUser.save();
-      //     res
-      //       .status(200)
-      //       .json({ message: "Successfully registered account", user });
-      //   } else if (
-      //     req.body.password == undefined ||
-      //     req.body.confirmPassword == undefined
-      //   ) {
-      //     res
-      //       .status(401)
-      //       .json({ message: "Missing password or confirm password" });
-      //   } else {
-      //     res
-      //       .status(401)
-      //       .json({ message: "Password and confirm password are not the same" });
-      //   }
-      // }
+            const staff = await newStaff.save();
+            const owner = await Owner.findById(idOwner);
+
+            await owner.updateOne({ $push: { staffs: staff._id } });
+            res
+              .status(200)
+              .json({ message: "Successfully registered account", staff });
+          } else {
+            res.status(404).json({ message: "Missing owner data field" });
+          }
+        } else if (status == 2) {
+          const newUser = await new User({
+            username: req.body.username,
+            email: req.body.email,
+            address: req.body.address,
+            phone: req.body.phone,
+            password: hashed,
+          });
+
+          const user = await newUser.save();
+          res
+            .status(200)
+            .json({ message: "Successfully registered account", user });
+        } else {
+          res.status(404).json({ message: "Not Found" });
+        }
+      } else if (
+        req.body.password == undefined ||
+        req.body.confirmPassword == undefined
+      ) {
+        res
+          .status(401)
+          .json({ message: "Missing password or confirm password" });
+      } else {
+        res.status(401).json({
+          message: "Password and confirm password are not the same",
+        });
+      }
     } catch (error) {
       res.status(500).json(error);
     }
