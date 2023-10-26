@@ -7,6 +7,12 @@ const WarehouseCategorySchema = mongoose.Schema(
       required: true,
       unique: true,
     },
+    warehouses: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Warehouse",
+      },
+    ],
   },
   { timestamps: true }
 );

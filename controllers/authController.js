@@ -50,7 +50,7 @@ const authController = {
         property = "username";
       } else if (email === staff.email) {
         property = "email";
-      } else if (phone === staff.phone) {
+      } else if (parseFloat(phone) === staff.phone) {
         property = "phone";
       }
     }
@@ -59,7 +59,7 @@ const authController = {
         property = "username";
       } else if (email === owner.email) {
         property = "email";
-      } else if (phone === owner.phone) {
+      } else if (parseFloat(phone) === owner.phone) {
         property = "phone";
       }
     }
@@ -84,8 +84,11 @@ const authController = {
       }
     );
   },
-  registerUser: async (req, res) => {
+  register: async (req, res) => {
     try {
+      const status = req.query.status;
+      const idOwner = req.query.idOwner;
+
       const property = await authController.isUsernameOrEmailOrPhoneTaken(
         req.body.username,
         req.body.email,
@@ -101,18 +104,56 @@ const authController = {
         const salt = await bcrypt.genSalt(10);
         const hashed = await bcrypt.hash(req.body.password, salt);
 
-        const newUser = await new User({
-          username: req.body.username,
-          email: req.body.email,
-          address: req.body.address,
-          phone: req.body.phone,
-          password: hashed,
-        });
+        if (status == 0) {
+          const newOwner = await new Owner({
+            username: req.body.username,
+            email: req.body.email,
+            address: req.body.address,
+            phone: req.body.phone,
+            password: hashed,
+          });
 
-        const user1 = await newUser.save();
-        res
-          .status(200)
-          .json({ message: "Successfully registered account", user: user1 });
+          const owner = await newOwner.save();
+          console.log();
+          res
+            .status(200)
+            .json({ message: "Successfully registered account", owner });
+        } else if (status == 1) {
+          if (idOwner) {
+            const newStaff = await new Staff({
+              username: req.body.username,
+              email: req.body.email,
+              phone: req.body.phone,
+              password: hashed,
+              owner: idOwner,
+            });
+
+            const staff = await newStaff.save();
+            const owner = await Owner.findById(idOwner);
+
+            await owner.updateOne({ $push: { staffs: staff._id } });
+            res
+              .status(200)
+              .json({ message: "Successfully registered account", staff });
+          } else {
+            res.status(404).json({ message: "Missing owner data field" });
+          }
+        } else if (status == 2) {
+          const newUser = await new User({
+            username: req.body.username,
+            email: req.body.email,
+            address: req.body.address,
+            phone: req.body.phone,
+            password: hashed,
+          });
+
+          const user = await newUser.save();
+          res
+            .status(200)
+            .json({ message: "Successfully registered account", user });
+        } else {
+          res.status(404).json({ message: "Not Found" });
+        }
       } else if (
         req.body.password == undefined ||
         req.body.confirmPassword == undefined
@@ -121,36 +162,40 @@ const authController = {
           .status(401)
           .json({ message: "Missing password or confirm password" });
       } else {
-        res
-          .status(401)
-          .json({ message: "Password and confirm password are not the same" });
+        res.status(401).json({
+          message: "Password and confirm password are not the same",
+        });
       }
     } catch (error) {
       res.status(500).json(error);
     }
   },
-  loginUser: async (req, res) => {
+  login: async (req, res) => {
     try {
       const user = await authController.isUsernameTaken(req.body.username);
       if (user) {
-        const validPassword = await bcrypt.compare(
-          req.body.password,
-          user.password
-        );
-        if (validPassword) {
-          const accessToken = await authController.generateAccessToken(user);
-          const { password, ...others } = user._doc;
+        if (user.isActive) {
+          const validPassword = await bcrypt.compare(
+            req.body.password,
+            user.password
+          );
+          if (validPassword) {
+            const accessToken = await authController.generateAccessToken(user);
+            const { password, ...others } = user._doc;
 
-          res.status(200).json({
-            message: "Logged in successfully",
-            others: others,
-            accessToken: accessToken,
-          });
+            res.status(200).json({
+              message: "Logged in successfully",
+              others: others,
+              accessToken: accessToken,
+            });
+          } else {
+            res.status(401).json({ message: "Password is not valid" });
+          }
         } else {
-          res.status(401).json({ message: "Password is not valid" });
+          res.status(401).json({ message: "Account has not been activated" });
         }
       } else {
-        res.status(401).json({ message: "Password is not valid" });
+        res.status(401).json({ message: "Username is not valid" });
       }
     } catch (error) {
       res.status(500).json(error);
