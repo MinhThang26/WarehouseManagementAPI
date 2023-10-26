@@ -29,6 +29,14 @@ const staffSchema = mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Owner",
+    },
+    isActive: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
