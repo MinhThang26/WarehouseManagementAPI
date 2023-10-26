@@ -5,14 +5,41 @@ const middlewareController = {
     if (token) {
       jwt.verify(token, process.env.JWT_ACCESS_KEY, (err, user) => {
         if (err) {
-          res.status(403).json("Token is not valid");
+          res.status(403).json({ message: "Token is not valid" });
         }
         req.user = user;
         next();
       });
     } else {
-      res.status(401).json("You're not authorized to access ");
+      res.status(401).json({ message: "You're not authorized to access" });
     }
+  },
+  verifyTokenIsAdmin: (req, res, next) => {
+    middlewareController.verifyToken(req, res, () => {
+      if (req.user.isAdmin) {
+        next();
+      } else {
+        res.status(403).json({ message: "You're not an admin" });
+      }
+    });
+  },
+  verifyTokenIsStaff: (req, res, next) => {
+    middlewareController.verifyToken(req, res, () => {
+      if (req.user.isStaff) {
+        next();
+      } else {
+        res.status(403).json({ message: "You're not Staff" });
+      }
+    });
+  },
+  verifyTokenIsOwner: (req, res, next) => {
+    middlewareController.verifyToken(req, res, () => {
+      if (req.user.isOwner) {
+        next();
+      } else {
+        res.status(403).json({ message: "You're not Owner" });
+      }
+    });
   },
 };
 module.exports = middlewareController;

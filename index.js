@@ -28,6 +28,9 @@ mongoose.connection.once("open", () => {
 });
 
 const authRouter = require("./routers/authRouter");
+const warehouseRouter = require("./routers/warehouseRouter");
+
 app.use("/v1/auth", authRouter);
+app.use("/v1/warehouse", warehouseRouter);
 
 module.exports = app;

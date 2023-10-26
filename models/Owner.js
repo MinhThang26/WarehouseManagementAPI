@@ -29,6 +29,10 @@ const ownerSchema = mongoose.Schema(
       type: Number,
       required: true,
     },
+    isOwner: {
+      type: Boolean,
+      default: true,
+    },
   },
   { timestamps: true }
 );

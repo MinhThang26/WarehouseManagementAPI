@@ -25,6 +25,10 @@ const staffSchema = mongoose.Schema(
       type: Number,
       required: true,
     },
+    isStaff: {
+      type: Boolean,
+      default: true,
+    },
   },
   { timestamps: true }
 );

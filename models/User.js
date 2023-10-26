@@ -23,11 +23,11 @@ const userSchema = mongoose.Schema(
     },
     address: {
       type: String,
-      required: true,
     },
     phone: {
       type: Number,
       required: true,
+      unique: true,
     },
   },
   { timestamps: true }
