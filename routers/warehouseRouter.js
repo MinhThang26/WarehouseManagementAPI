@@ -9,4 +9,5 @@ router.get(
   warehouseCategoryController.getAllCategory
 );
 router.post("/addWarehouse",WarehouseController.addWarehouse);
+router.get("/",WarehouseController.getAllWarehouses);
 module.exports = router;
