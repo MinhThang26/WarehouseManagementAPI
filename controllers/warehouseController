@@ -45,12 +45,12 @@ const WarehouseController = {
         try {
             const warehouses = await Warehouse.findById(req.params.id);
             await warehouses.updateOne({ $set: req.body });
-            if (!warehouses) {
-                res
-                    .status(404)
-                    .json({ message: "View warehouse data failed" });
+            if (warehouses) {
+                 res.status(200).json("Updated warehouse successfully!");
             }
-            res.status(200).json("Updated warehouse successfully!");
+            else{
+                 res.status(404).json({ message: "View warehouse data failed" });
+            }
         } catch (err) {
             res.status(500).json(err);
         }

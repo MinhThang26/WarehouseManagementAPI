@@ -13,8 +13,8 @@ router.post("/addWarehouse",WarehouseController.addWarehouse);
 
 router.get("/",WarehouseController.getAllWarehouses);
 
-router.put("/:id",WarehouseController.updateWarehouse);
+router.put("/updateWarehouse/:id",WarehouseController.updateWarehouse);
 
-router.delete("/:id",WarehouseController.deleteWarehouse);
+router.delete("/deleteWarehouse/:id",WarehouseController.deleteWarehouse);
 
 module.exports = router;
