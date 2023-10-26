@@ -8,6 +8,13 @@ router.get(
   middlewareController.verifyToken,
   warehouseCategoryController.getAllCategory
 );
+
 router.post("/addWarehouse",WarehouseController.addWarehouse);
+
 router.get("/",WarehouseController.getAllWarehouses);
+
+router.put("/updateWarehouse/:id",WarehouseController.updateWarehouse);
+
+router.delete("/deleteWarehouse/:id",WarehouseController.deleteWarehouse);
+
 module.exports = router;
