@@ -52,7 +52,7 @@ const WarehouseController = {
                  res.status(404).json({ message: "View warehouse data failed" });
             }
         } catch (err) {
-            res.status(500).json(err);
+            res.status(500).json({ message: error.message });
         }
     },
 
