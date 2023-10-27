@@ -31,9 +31,9 @@ const wareHouseSchema = mongoose.Schema(
     description: {
         type: String,
     },
-    Owner: {
+    owner: {
         type: mongoose.Schema.Types.ObjectId,
-        ref:"Owner",
+        ref: "Owner",
     },
 
   },
