@@ -25,22 +25,22 @@ router.put(
 router.put(
   "/deactivate-owner",
   middlewareController.verifyTokenIsAdmin,
-  adminController.activateAccountOwner
+  adminController.deactivateAccountOwner
 );
 router.put(
   "/deactivate-staff",
   middlewareController.verifyTokenIsAdmin,
-  adminController.activateAccountStaff
+  adminController.deactivateAccountStaff
 );
 router.put(
   "/deactivate-staffs",
   middlewareController.verifyTokenIsAdmin,
-  adminController.activateAccountStaffs
+  adminController.deactivateAccountStaffs
 );
 router.put(
   "/deactivate-owners",
   middlewareController.verifyTokenIsAdmin,
-  adminController.activateAccountOwners
+  adminController.deactivateAccountOwners
 );
 
 module.exports = router;
