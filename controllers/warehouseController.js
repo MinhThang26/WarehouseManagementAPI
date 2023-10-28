@@ -5,8 +5,11 @@ const WarehouseCategory = require("../models/WarehouseCategory");
 const WarehouseController = {
     //ADD WAREHOUSE
     addWarehouse: async (req, res) => {
-        try {
-            const newWarehouse = new Warehouse(req.body);
+        try 
+        {
+            const idOwner = req.query.id_owner;
+            if (idOwner) {
+                const newWarehouse = new Warehouse(req.body);
             const saveWarehouse = await newWarehouse.save();
             if (req.body.owner) {
                 const owner = Owner.findById(req.body.owner);
@@ -17,24 +20,40 @@ const WarehouseController = {
                 await category.updateOne({ $push: { warehouses: saveWarehouse._id } });
             }
             res.status(200).json(saveWarehouse);
-        } catch (err) {
+            }
+            else{
+                res.status(404).json( {message:"thêm không thành công do không phải là chủ kho"});
+            }
+        }
+         catch (err) {
             res.status(500).json(err); //HTTP Request code
         }
     },
 
+
     getAllWarehouses: async (req, res) => {
+        
         try {
-            const warehouses = await Warehouse.find();
-            if (warehouses) {
-                res.status(200).json({
-                    message: "View warehouse data successfully",
-                    warehouses: warehouses,
-                });
-            } else {
-                res
+            const idOwner = req.query.id_owner;
+            if(idOwner){
+                const warehouses = await Warehouse.find();
+                if (warehouses) {
+                    res.status(200).json({
+                        message: "View warehouse data successfully",
+                        warehouses: warehouses,
+                    });
+                } 
+                else{
+                    res
                     .status(404)
                     .json({ message: "View warehouse data failed" });
+                }
             }
+            else{
+                res.status(401).json({message: "xem danh sách kho không thành công vì khongo phải là chủ kho"})
+            }
+           
+            
         } catch (err) {
             res.status(500).json(err); //HTTP Request code
         }
@@ -52,7 +71,7 @@ const WarehouseController = {
                  res.status(404).json({ message: "View warehouse data failed" });
             }
         } catch (err) {
-            res.status(500).json(err);
+            res.status(500).json({ message: error.message });
         }
     },
 
