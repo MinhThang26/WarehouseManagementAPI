@@ -7,9 +7,11 @@ router.get(
   "/category/list",middlewareController.verifyToken,warehouseCategoryController.getAllCategory
 );
 
-router.post("/addWarehouse",WarehouseController.addWarehouse);
+router.post("/create",middlewareController.verifyTokenIsOwner, 
+WarehouseController.addWarehouse);
 
-router.get("/",WarehouseController.getAllWarehouses);
+router.get("/list",middlewareController.verifyTokenIsOwner,
+WarehouseController.getAllWarehouses);
 
 router.put("/updateWarehouse/:id",middlewareController.verifyToken,WarehouseController.updateWarehouse);
 
