@@ -6,6 +6,7 @@ const middlewareController = {
       jwt.verify(token, process.env.JWT_ACCESS_KEY, (err, user) => {
         if (err) {
           res.status(403).json({ message: "Token is not valid" });
+          return;
         }
         req.user = user;
         next();
