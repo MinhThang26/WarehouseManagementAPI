@@ -1,28 +1,23 @@
 const User = require("../models/User");
-const Staff = require("../models/Staff");
 const Owner = require("../models/Owner");
 const _ = require("lodash");
 
 const adminController = {
   checkAccountById: async (id) => {
     const user = await User.findById(id);
-    const staff = await Staff.findById(id);
     const owner = await Owner.findById(id);
     if (user) {
       return user;
-    } else if (staff) {
-      return staff;
     } else if (owner) {
       return owner;
     }
   },
-
-  getAllAccountByIsActive: async (req, res) => {
+  getAllAccountByIsActivate: async (req, res) => {
     try {
       const owners = await Owner.find({ isActive: true });
-      const staffs = await Staff.find({ isActive: true });
       const users = await User.find({ isActive: true });
-      const accounts = _.shuffle(owners.concat(staffs, users));
+      const accounts = _.shuffle(owners.concat(users));
+
       if (accounts) {
         res.status(200).json({
           message: "Read the list of successfully activated accounts",
@@ -37,12 +32,12 @@ const adminController = {
       res.status(500).json(error);
     }
   },
-  getAllAccountByIsNotActive: async (req, res) => {
+  getAllAccountByNotActivate: async (req, res) => {
     try {
       const owners = await Owner.find({ isActive: false });
-      const staffs = await Staff.find({ isActive: false });
       const users = await User.find({ isActive: false });
-      const accounts = _.shuffle(owners.concat(staffs, users));
+      const accounts = _.shuffle(owners.concat(users));
+
       if (accounts) {
         res.status(200).json({
           message: "Read the list of successfully activated accounts",
@@ -104,10 +99,6 @@ const adminController = {
           { _id: { $in: ids } },
           { $set: { isActive: true } }
         );
-        await Staff.updateMany(
-          { _id: { $in: ids } },
-          { $set: { isActive: true } }
-        );
         await Owner.updateMany(
           { _id: { $in: ids } },
           { $set: { isActive: true } }
@@ -133,10 +124,6 @@ const adminController = {
           { _id: { $in: ids } },
           { $set: { isActive: false } }
         );
-        await Staff.updateMany(
-          { _id: { $in: ids } },
-          { $set: { isActive: false } }
-        );
         await Owner.updateMany(
           { _id: { $in: ids } },
           { $set: { isActive: false } }
@@ -146,6 +133,74 @@ const adminController = {
         res
           .status(404)
           .json({ message: "The account has been deactivated unsuccessfully" });
+      }
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+  getAllOwnerByIsActivate: async (req, res) => {
+    try {
+      const owners = await Owner.find({ isActive: true });
+      if (owners) {
+        res.status(200).json({
+          message: "Read the list of successfully activated accounts owner",
+          owners: owners,
+        });
+      } else {
+        res.status(404).json({
+          message: "Read the list of unsuccessfully activated accounts owner",
+        });
+      }
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+  getAllOwnerByNotActivate: async (req, res) => {
+    try {
+      const owners = await Owner.find({ isActive: false });
+      if (owners) {
+        res.status(200).json({
+          message: "Read the list of successfully activated accounts owner",
+          owners: owners,
+        });
+      } else {
+        res.status(404).json({
+          message: "Read the list of unsuccessfully activated accounts owner",
+        });
+      }
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+  getAllUserByIsActivate: async (req, res) => {
+    try {
+      const users = await User.find({ isActive: true });
+      if (users) {
+        res.status(200).json({
+          message: "Read the list of successfully activated accounts users",
+          users: users,
+        });
+      } else {
+        res.status(404).json({
+          message: "Read the list of unsuccessfully activated accounts users",
+        });
+      }
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+  getAllUserByNotActivate: async (req, res) => {
+    try {
+      const users = await User.find({ isActive: false });
+      if (users) {
+        res.status(200).json({
+          message: "Read the list of successfully activated accounts users",
+          users: users,
+        });
+      } else {
+        res.status(404).json({
+          message: "Read the list of unsuccessfully activated accounts users",
+        });
       }
     } catch (error) {
       res.status(500).json(error);

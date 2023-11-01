@@ -23,15 +23,7 @@ const middlewareController = {
       }
     });
   },
-  verifyTokenIsStaff: (req, res, next) => {
-    middlewareController.verifyToken(req, res, () => {
-      if (req.user.isStaff) {
-        next();
-      } else {
-        res.status(403).json({ message: "You're not Staff" });
-      }
-    });
-  },
+
   verifyTokenIsOwner: (req, res, next) => {
     middlewareController.verifyToken(req, res, () => {
       if (req.user.isOwner) {

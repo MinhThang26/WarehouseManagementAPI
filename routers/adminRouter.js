@@ -22,21 +22,35 @@ router.put(
   middlewareController.verifyTokenIsAdmin,
   adminController.deactivateMultipleAccounts
 );
-
 router.get(
   "/list-account-active",
   middlewareController.verifyTokenIsAdmin,
-  adminController.getAllAccountByIsActive
+  adminController.getAllAccountByIsActivate
 );
 router.get(
   "/list-account-not-active",
   middlewareController.verifyTokenIsAdmin,
-  adminController.getAllAccountByIsNotActive
+  adminController.getAllAccountByNotActivate
 );
-router.put(
-  "/activate-account",
+router.get(
+  "/list-owner-active",
   middlewareController.verifyTokenIsAdmin,
-  adminController.activateAccount
+  adminController.getAllOwnerByIsActivate
+);
+router.get(
+  "/list-owner-not-active",
+  middlewareController.verifyTokenIsAdmin,
+  adminController.getAllOwnerByNotActivate
+);
+router.get(
+  "/list-user-active",
+  middlewareController.verifyTokenIsAdmin,
+  adminController.getAllUserByIsActivate
+);
+router.get(
+  "/list-user-not-active",
+  middlewareController.verifyTokenIsAdmin,
+  adminController.getAllUserByNotActivate
 );
 
 module.exports = router;
