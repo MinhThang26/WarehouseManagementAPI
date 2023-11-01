@@ -1,6 +1,5 @@
 const User = require("../models/User");
 const Admin = require("../models/Admin");
-const Staff = require("../models/Staff");
 const Owner = require("../models/Owner");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -8,13 +7,10 @@ const jwt = require("jsonwebtoken");
 const authController = {
   isUsernameTaken: async (username) => {
     const user = await User.findOne({ username });
-    const staff = await Staff.findOne({ username });
     const owner = await Owner.findOne({ username });
     const admin = await Admin.findOne({ username });
     if (user) {
       return user;
-    } else if (staff) {
-      return staff;
     } else if (owner) {
       return owner;
     } else if (admin) {
@@ -28,9 +24,7 @@ const authController = {
     const user = await User.findOne({
       $or: [{ username }, { email }, { phone }],
     });
-    const staff = await Staff.findOne({
-      $or: [{ username }, { email }, { phone }],
-    });
+
     const owner = await Owner.findOne({
       $or: [{ username }, { email }, { phone }],
     });
@@ -45,15 +39,7 @@ const authController = {
         property = "phone";
       }
     }
-    if (staff) {
-      if (username === staff.username) {
-        property = "username";
-      } else if (email === staff.email) {
-        property = "email";
-      } else if (parseFloat(phone) === staff.phone) {
-        property = "phone";
-      }
-    }
+
     if (owner) {
       if (username === owner.username) {
         property = "username";
@@ -75,7 +61,6 @@ const authController = {
       {
         id: user.id,
         isAdmin: user.isAdmin,
-        isStaff: user.isStaff,
         isOwner: user.isOwner,
       },
       process.env.JWT_ACCESS_KEY,
@@ -87,7 +72,6 @@ const authController = {
   register: async (req, res) => {
     try {
       const status = req.query.status;
-      const idOwner = req.query.idOwner;
 
       const property = await authController.isUsernameOrEmailOrPhoneTaken(
         req.body.username,
@@ -119,26 +103,6 @@ const authController = {
             .status(200)
             .json({ message: "Successfully registered account", owner });
         } else if (status == 1) {
-          if (idOwner) {
-            const newStaff = await new Staff({
-              username: req.body.username,
-              email: req.body.email,
-              phone: req.body.phone,
-              password: hashed,
-              owner: idOwner,
-            });
-
-            const staff = await newStaff.save();
-            const owner = await Owner.findById(idOwner);
-
-            await owner.updateOne({ $push: { staffs: staff._id } });
-            res
-              .status(200)
-              .json({ message: "Successfully registered account", staff });
-          } else {
-            res.status(404).json({ message: "Missing owner data field" });
-          }
-        } else if (status == 2) {
           const newUser = await new User({
             username: req.body.username,
             email: req.body.email,
