@@ -3,44 +3,40 @@ const adminController = require("../controllers/adminController");
 const middlewareController = require("../controllers/middlewareController");
 
 router.put(
-  "/activate-owner",
+  "/activate-account",
   middlewareController.verifyTokenIsAdmin,
-  adminController.activateAccountOwner
+  adminController.activateAccount
 );
 router.put(
-  "/activate-staff",
+  "/deactivate-account",
   middlewareController.verifyTokenIsAdmin,
-  adminController.activateAccountStaff
+  adminController.deactivateAccount
 );
 router.put(
-  "/activate-staffs",
+  "/activate-multiple-accounts",
   middlewareController.verifyTokenIsAdmin,
-  adminController.activateAccountStaffs
+  adminController.activateMultipleAccounts
 );
 router.put(
-  "/activate-owners",
+  "/deactivate-multiple-accounts",
   middlewareController.verifyTokenIsAdmin,
-  adminController.activateAccountOwners
+  adminController.deactivateMultipleAccounts
+);
+
+router.get(
+  "/list-account-active",
+  middlewareController.verifyTokenIsAdmin,
+  adminController.getAllAccountByIsActive
+);
+router.get(
+  "/list-account-not-active",
+  middlewareController.verifyTokenIsAdmin,
+  adminController.getAllAccountByIsNotActive
 );
 router.put(
-  "/deactivate-owner",
+  "/activate-account",
   middlewareController.verifyTokenIsAdmin,
-  adminController.deactivateAccountOwner
-);
-router.put(
-  "/deactivate-staff",
-  middlewareController.verifyTokenIsAdmin,
-  adminController.deactivateAccountStaff
-);
-router.put(
-  "/deactivate-staffs",
-  middlewareController.verifyTokenIsAdmin,
-  adminController.deactivateAccountStaffs
-);
-router.put(
-  "/deactivate-owners",
-  middlewareController.verifyTokenIsAdmin,
-  adminController.deactivateAccountOwners
+  adminController.activateAccount
 );
 
 module.exports = router;
