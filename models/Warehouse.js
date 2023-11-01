@@ -14,6 +14,7 @@ const wareHouseSchema = mongoose.Schema(
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "WarehouseCategory",
+      required: true,
     },
     capacity: {
       type: String,
@@ -32,6 +33,7 @@ const wareHouseSchema = mongoose.Schema(
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Owner",
+      required: true,
     },
   },
   { timestamps: true }
