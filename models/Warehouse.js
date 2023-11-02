@@ -6,39 +6,35 @@ const wareHouseSchema = mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      
     },
     address: {
-        type: String,
-        required: true,
-      },
+      type: String,
+      required: true,
+    },
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "WarehouseCategory",
       required: true,
-
     },
     capacity: {
       type: String,
     },
-    
+
     monney: {
       type: Number,
       required: true,
-      
     },
     status: {
-        type: String,
+      type: String,
     },
     description: {
-        type: String,
+      type: String,
     },
     owner: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Owner",
-        required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Owner",
+      required: true,
     },
-
   },
   { timestamps: true }
 );
