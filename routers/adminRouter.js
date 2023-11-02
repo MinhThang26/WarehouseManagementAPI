@@ -3,44 +3,54 @@ const adminController = require("../controllers/adminController");
 const middlewareController = require("../controllers/middlewareController");
 
 router.put(
-  "/activate-owner",
+  "/activate-account",
   middlewareController.verifyTokenIsAdmin,
-  adminController.activateAccountOwner
+  adminController.activateAccount
 );
 router.put(
-  "/activate-staff",
+  "/deactivate-account",
   middlewareController.verifyTokenIsAdmin,
-  adminController.activateAccountStaff
+  adminController.deactivateAccount
 );
 router.put(
-  "/activate-staffs",
+  "/activate-multiple-accounts",
   middlewareController.verifyTokenIsAdmin,
-  adminController.activateAccountStaffs
+  adminController.activateMultipleAccounts
 );
 router.put(
-  "/activate-owners",
+  "/deactivate-multiple-accounts",
   middlewareController.verifyTokenIsAdmin,
-  adminController.activateAccountOwners
+  adminController.deactivateMultipleAccounts
 );
-router.put(
-  "/deactivate-owner",
+router.get(
+  "/list-account-active",
   middlewareController.verifyTokenIsAdmin,
-  adminController.deactivateAccountOwner
+  adminController.getAllAccountByIsActivate
 );
-router.put(
-  "/deactivate-staff",
+router.get(
+  "/list-account-not-active",
   middlewareController.verifyTokenIsAdmin,
-  adminController.deactivateAccountStaff
+  adminController.getAllAccountByNotActivate
 );
-router.put(
-  "/deactivate-staffs",
+router.get(
+  "/list-owner-active",
   middlewareController.verifyTokenIsAdmin,
-  adminController.deactivateAccountStaffs
+  adminController.getAllOwnerByIsActivate
 );
-router.put(
-  "/deactivate-owners",
+router.get(
+  "/list-owner-not-active",
   middlewareController.verifyTokenIsAdmin,
-  adminController.deactivateAccountOwners
+  adminController.getAllOwnerByNotActivate
+);
+router.get(
+  "/list-user-active",
+  middlewareController.verifyTokenIsAdmin,
+  adminController.getAllUserByIsActivate
+);
+router.get(
+  "/list-user-not-active",
+  middlewareController.verifyTokenIsAdmin,
+  adminController.getAllUserByNotActivate
 );
 
 module.exports = router;

@@ -38,12 +38,6 @@ const ownerSchema = mongoose.Schema(
         ref: "Warehouse",
       },
     ],
-    staffs: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Staff",
-      },
-    ],
     isActive: {
       type: Boolean,
       default: false,
