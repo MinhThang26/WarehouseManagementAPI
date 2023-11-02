@@ -215,5 +215,59 @@ const authController = {
       res.status(500).json(error);
     }
   },
+  changePassword: async (req, res) => {
+    try {
+      const account = await adminController.checkAccountById(req.query.id);
+
+      if (account) {
+        const validPassword = await bcrypt.compare(
+          req.body.password,
+          account.password
+        );
+        if (!validPassword) {
+          if (req.body.password === req.body.confirmPassword) {
+            const salt = await bcrypt.genSalt(10);
+            const hashed = await bcrypt.hash(req.body.password, salt);
+            await account.updateOne({
+              $set: {
+                password: hashed,
+              },
+            });
+            res
+              .status(200)
+              .json({ message: "Change password account successfully" });
+          } else {
+            res.status(401).json({
+              message: "Password and confirm password are not the same",
+            });
+          }
+        } else {
+          res.status(401).json({
+            message: "The new password cannot be the same as the old password",
+          });
+        }
+      } else {
+        res.status(404).json({ message: "Account not found" });
+      }
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+  getAccountById: async (req, res) => {
+    try {
+      const account = await adminController.checkAccountById(req.query.id);
+
+      if (account) {
+        const { password, ...others } = account._doc;
+        res
+          .status(200)
+          .json({ message: "Read data account successfully", others: others });
+      } else {
+        res.status(404).json({ message: "Account not found" });
+      }
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
 };
 module.exports = authController;
