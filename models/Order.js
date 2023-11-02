@@ -7,7 +7,7 @@ const orderSchema = mongoose.Schema(
             required: true,
             
         },
-          owner: {
+        owner: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Owner",
             required: true,

@@ -38,6 +38,12 @@ const ownerSchema = mongoose.Schema(
         ref: "Warehouse",
       },
     ],
+    orders: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Order",
+      },
+    ],
     isActive: {
       type: Boolean,
       default: false,
