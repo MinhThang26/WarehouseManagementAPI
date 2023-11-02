@@ -6,6 +6,7 @@ const middlewareController = {
       jwt.verify(token, process.env.JWT_ACCESS_KEY, (err, user) => {
         if (err) {
           res.status(403).json({ message: "Token is not valid" });
+          return;
         }
         req.user = user;
         next();
@@ -23,15 +24,7 @@ const middlewareController = {
       }
     });
   },
-  verifyTokenIsStaff: (req, res, next) => {
-    middlewareController.verifyToken(req, res, () => {
-      if (req.user.isStaff) {
-        next();
-      } else {
-        res.status(403).json({ message: "You're not Staff" });
-      }
-    });
-  },
+
   verifyTokenIsOwner: (req, res, next) => {
     middlewareController.verifyToken(req, res, () => {
       if (req.user.isOwner) {

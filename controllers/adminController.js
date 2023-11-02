@@ -1,155 +1,206 @@
 const User = require("../models/User");
-const Staff = require("../models/Staff");
 const Owner = require("../models/Owner");
+const _ = require("lodash");
 
 const adminController = {
-  activateAccountOwner: async (req, res) => {
+  checkAccountById: async (id) => {
+    const user = await User.findById(id);
+    const owner = await Owner.findById(id);
+    if (user) {
+      return user;
+    } else if (owner) {
+      return owner;
+    }
+  },
+  getAllAccountByIsActivate: async (req, res) => {
     try {
-      const idOwner = req.query.idOwner;
-      const owner = await Owner.findById(idOwner);
+      const owners = await Owner.find({ isActive: true });
+      const users = await User.find({ isActive: true });
+      const accounts = _.shuffle(owners.concat(users));
 
-      if (owner) {
-        // Tìm và cập nhật staffs có id nằm trong danh sách idStaffs
-        await owner.updateOne({ $set: { isActive: true } });
-
-        res.status(200).json({ message: "Activate account owners successful" });
+      if (accounts) {
+        res.status(200).json({
+          message: "Read the list of successfully activated accounts",
+          accounts: accounts,
+        });
       } else {
-        res.status(404).json({ message: "This owner account does not exist" });
+        res.status(404).json({
+          message: "Read the list of unsuccessfully activated accounts",
+        });
       }
     } catch (error) {
       res.status(500).json(error);
     }
   },
-  deactivateAccountOwner: async (req, res) => {
+  getAllAccountByNotActivate: async (req, res) => {
     try {
-      const idOwner = req.query.idOwner;
-      const owner = await Owner.findById(idOwner);
+      const owners = await Owner.find({ isActive: false });
+      const users = await User.find({ isActive: false });
+      const accounts = _.shuffle(owners.concat(users));
 
-      if (owner) {
-        // Tìm và cập nhật staffs có id nằm trong danh sách idStaffs
-        await owner.updateOne({ $set: { isActive: false } });
-
+      if (accounts) {
+        res.status(200).json({
+          message: "Read the list of successfully activated accounts",
+          accounts: accounts,
+        });
+      } else {
+        res.status(404).json({
+          message: "Read the list of unsuccessfully activated accounts",
+        });
+      }
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+  activateAccount: async (req, res) => {
+    try {
+      const account = await adminController.checkAccountById(req.query.id);
+      if (account) {
+        await account.updateOne({
+          $set: {
+            isActive: true,
+          },
+        });
+        res.status(200).json({ message: "Successfully activated account" });
+      } else {
         res
-          .status(200)
-          .json({ message: "DeActivate account owners successful" });
-      } else {
-        res.status(404).json({ message: "This owner account does not exist" });
+          .status(500)
+          .json({ message: "The account has been activated unsuccessfully" });
       }
     } catch (error) {
       res.status(500).json(error);
     }
   },
-  activateAccountStaff: async (req, res) => {
+  deactivateAccount: async (req, res) => {
     try {
-      const idStaff = req.query.idStaff;
-      const staff = await Staff.findById(idStaff);
-
-      if (staff) {
-        // Tìm và cập nhật staffs có id nằm trong danh sách idStaffs
-        await staff.updateOne({ $set: { isActive: true } });
-
-        res.status(200).json({ message: "Activate account staff successful" });
+      const account = await adminController.checkAccountById(req.query.id);
+      if (account) {
+        await account.updateOne({
+          $set: {
+            isActive: false,
+          },
+        });
+        res.status(200).json({ message: "Successfully deactivated account" });
       } else {
-        res.status(404).json({ message: "This staff account does not exist" });
-      }
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  },
-  deactivateAccountStaff: async (req, res) => {
-    try {
-      const idStaff = req.query.idStaff;
-      const staff = await Staff.findById(idStaff);
-
-      if (staff) {
-        // Tìm và cập nhật staffs có id nằm trong danh sách idStaffs
-        await staff.updateOne({ $set: { isActive: false } });
-
         res
-          .status(200)
-          .json({ message: "DeActivate account staff successful" });
-      } else {
-        res.status(404).json({ message: "This staff account does not exist" });
+          .status(404)
+          .json({ message: "The account has been deactivated unsuccessfully" });
       }
     } catch (error) {
       res.status(500).json(error);
     }
   },
-  activateAccountStaffs: async (req, res) => {
+  activateMultipleAccounts: async (req, res) => {
     try {
-      const idStaffs = req.query.idStaff;
+      const ids = req.query.id;
 
-      if (idStaffs) {
-        // Tìm và cập nhật staffs có id nằm trong danh sách idStaffs
-        await Staff.updateMany(
-          { _id: { $in: idStaffs } },
+      if (ids) {
+        await User.updateMany(
+          { _id: { $in: ids } },
+          { $set: { isActive: true } }
+        );
+        await Owner.updateMany(
+          { _id: { $in: ids } },
           { $set: { isActive: true } }
         );
 
-        res.status(200).json({ message: "Activate account staff successful" });
-      } else {
-        res.status(404).json({ message: "This staff account does not exist" });
-      }
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  },
-  deactivateAccountStaffs: async (req, res) => {
-    try {
-      const idStaffs = req.query.idStaff;
-
-      if (idStaffs) {
-        // Tìm và cập nhật staffs có id nằm trong danh sách idStaffs
-        await Staff.updateMany(
-          { _id: { $in: idStaffs } },
-          { $set: { isActive: false } }
-        );
-
         res
           .status(200)
-          .json({ message: "DeActivate account staff successful" });
+          .json({ message: "Successfully activated many account" });
       } else {
-        res.status(404).json({ message: "This staff account does not exist" });
+        res
+          .status(404)
+          .json({ message: "The account has been activated unsuccessfully" });
       }
     } catch (error) {
       res.status(500).json(error);
     }
   },
-  activateAccountOwners: async (req, res) => {
+  deactivateMultipleAccounts: async (req, res) => {
     try {
-      const idOwners = req.query.idOwner;
-
-      if (idOwners) {
-        // Tìm và cập nhật staffs có id nằm trong danh sách idStaffs
-        await Owner.updateMany(
-          { _id: { $in: idOwners } },
-          { $set: { isActive: true } }
-        );
-
-        res.status(200).json({ message: "Activate account owners successful" });
-      } else {
-        res.status(404).json({ message: "This owner account does not exist" });
-      }
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  },
-  deactivateAccountOwners: async (req, res) => {
-    try {
-      const idOwners = req.query.idOwner;
-
-      if (idOwners) {
-        // Tìm và cập nhật staffs có id nằm trong danh sách idStaffs
-        await Owner.updateMany(
-          { _id: { $in: idOwners } },
+      const ids = req.query.id;
+      if (ids) {
+        await User.updateMany(
+          { _id: { $in: ids } },
           { $set: { isActive: false } }
         );
-
-        res
-          .status(200)
-          .json({ message: "DeActivate account owners successful" });
+        await Owner.updateMany(
+          { _id: { $in: ids } },
+          { $set: { isActive: false } }
+        );
+        res.status(200).json({ message: "Successfully deactivated account" });
       } else {
-        res.status(404).json({ message: "This owner account does not exist" });
+        res
+          .status(404)
+          .json({ message: "The account has been deactivated unsuccessfully" });
+      }
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+  getAllOwnerByIsActivate: async (req, res) => {
+    try {
+      const owners = await Owner.find({ isActive: true });
+      if (owners) {
+        res.status(200).json({
+          message: "Read the list of successfully activated accounts owner",
+          owners: owners,
+        });
+      } else {
+        res.status(404).json({
+          message: "Read the list of unsuccessfully activated accounts owner",
+        });
+      }
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+  getAllOwnerByNotActivate: async (req, res) => {
+    try {
+      const owners = await Owner.find({ isActive: false });
+      if (owners) {
+        res.status(200).json({
+          message: "Read the list of successfully activated accounts owner",
+          owners: owners,
+        });
+      } else {
+        res.status(404).json({
+          message: "Read the list of unsuccessfully activated accounts owner",
+        });
+      }
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+  getAllUserByIsActivate: async (req, res) => {
+    try {
+      const users = await User.find({ isActive: true });
+      if (users) {
+        res.status(200).json({
+          message: "Read the list of successfully activated accounts users",
+          users: users,
+        });
+      } else {
+        res.status(404).json({
+          message: "Read the list of unsuccessfully activated accounts users",
+        });
+      }
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+  getAllUserByNotActivate: async (req, res) => {
+    try {
+      const users = await User.find({ isActive: false });
+      if (users) {
+        res.status(200).json({
+          message: "Read the list of successfully activated accounts users",
+          users: users,
+        });
+      } else {
+        res.status(404).json({
+          message: "Read the list of unsuccessfully activated accounts users",
+        });
       }
     } catch (error) {
       res.status(500).json(error);

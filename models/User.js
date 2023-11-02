@@ -33,6 +33,11 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    avatar: {
+      type: String,
+      default:
+        "https://res.cloudinary.com/dborrd4h5/image/upload/v1698906766/WarehouseManagement/avatars/trend-avatar-1_xdqcvy.jpg",
+    },
   },
   { timestamps: true }
 );

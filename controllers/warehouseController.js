@@ -89,26 +89,26 @@ const WarehouseController = {
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
-    }
+    },
 
 
-    // getAllWarehouse: async (req, res) => {
-    //     try {
-    //       const warehouse = await Warehouse.find();
-    //       if (warehouse) {
-    //         res.status(200).json({
-    //           message: "View warehouse data successfully",
-    //           warehouse: warehouse,
-    //         });
-    //       } else {
-    //         res
-    //           .status(404)
-    //           .json({ message: "View warehouse data failed" });
-    //       }
-    //     } catch (error) {
-    //       res.status(500).json(error);
-    //     }
-    //   },
+    getAllWarehouseUser: async (req, res) => {
+        try {
+          const warehouse = await Warehouse.find();
+          if (warehouse) {
+            res.status(200).json({
+              message: "View warehouse data successfully",
+              warehouse: warehouse,
+            });
+          } else {
+            res
+              .status(404)
+              .json({ message: "View warehouse data failed" });
+          }
+        } catch (error) {
+          res.status(500).json({ message: error.message });
+        }
+      },
 };
 
 module.exports = WarehouseController;

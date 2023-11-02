@@ -13,6 +13,9 @@ WarehouseController.addWarehouse);
 router.get("/list",middlewareController.verifyTokenIsOwner,
 WarehouseController.getAllWarehouses);
 
+router.get("/listWarehouseUser",middlewareController.verifyToken,
+WarehouseController.getAllWarehouseUser);
+
 router.put("/updateWarehouse/:id",middlewareController.verifyToken,WarehouseController.updateWarehouse);
 
 router.delete("/deleteWarehouse/:id",middlewareController.verifyToken,WarehouseController.deleteWarehouse);

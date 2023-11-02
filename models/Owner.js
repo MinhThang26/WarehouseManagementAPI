@@ -38,15 +38,14 @@ const ownerSchema = mongoose.Schema(
         ref: "Warehouse",
       },
     ],
-    staffs: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Staff",
-      },
-    ],
     isActive: {
       type: Boolean,
       default: false,
+    },
+    avatar: {
+      type: String,
+      default:
+        "https://res.cloudinary.com/dborrd4h5/image/upload/v1698906766/WarehouseManagement/avatars/trend-avatar-1_xdqcvy.jpg",
     },
   },
   { timestamps: true }
