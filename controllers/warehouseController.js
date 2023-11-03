@@ -50,7 +50,7 @@ const WarehouseController = {
                 }
             }
             else{
-                res.status(401).json({message: "xem danh sách kho không thành công vì khongo phải là chủ kho"})
+                res.status(401).json({message: "xem danh sách kho không thành công vì không phải là chủ kho"})
             }
            
             

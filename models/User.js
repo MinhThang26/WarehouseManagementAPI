@@ -33,6 +33,12 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    orders: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Order",
+      },
+    ],
     avatar: {
       type: String,
       default:
