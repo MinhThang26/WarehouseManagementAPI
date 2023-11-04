@@ -20,4 +20,6 @@ router.put("/updateWarehouse/:id",middlewareController.verifyToken,WarehouseCont
 
 router.delete("/deleteWarehouse/:id",middlewareController.verifyToken,WarehouseController.deleteWarehouse);
 
+router.get("/search",middlewareController.verifyToken,WarehouseController.searchWarehouse);
+
 module.exports = router;
