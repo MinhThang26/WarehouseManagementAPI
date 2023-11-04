@@ -38,5 +38,15 @@ const OrderController = {
             res.status(500).json({ message: error.message });
         }
     },
+    
+    getAnOrder: async (req, res) => {
+        try {
+            const idUser = req.query.id_user;
+            const order = await User.findById(idUser).populate("orders");
+            res.status(200).json(order);
+        } catch (err) {
+            res.status(500).json(err); //HTTP Request code
+        }
+    },
 };
 module.exports = OrderController;

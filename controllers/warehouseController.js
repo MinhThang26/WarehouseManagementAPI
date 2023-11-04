@@ -30,34 +30,40 @@ const WarehouseController = {
         }
     },
 
-
-    getAllWarehouses: async (req, res) => {
-        
+    getAnWarehouse: async (req, res) => {
         try {
             const idOwner = req.query.id_owner;
-            if(idOwner){
-                const warehouses = await Warehouse.find();
-                if (warehouses) {
-                    res.status(200).json({
-                        message: "View warehouse data successfully",
-                        warehouses: warehouses,
-                    });
-                } 
-                else{
-                    res
-                    .status(404)
-                    .json({ message: "View warehouse data failed" });
-                }
-            }
-            else{
-                res.status(401).json({message: "xem danh sách kho không thành công vì không phải là chủ kho"})
-            }
-           
-            
+            const owner = await Owner.findById(idOwner).populate("warehouses");
+            res.status(200).json(owner);
         } catch (err) {
             res.status(500).json(err); //HTTP Request code
         }
     },
+
+    // getAnWarehouses: async (req, res) => {
+    //     try {
+    //         const idOwner = req.query.id_owner;
+    //         if(idOwner){
+    //             const warehouses = await Owner.findById(idOwner).populate("warehouses");
+    //             if (warehouses) {
+    //                 res.status(200).json({
+    //                     message: "View warehouse data successfully",
+    //                     warehouses: warehouses,
+    //                 });
+    //             } 
+    //             else{
+    //                 res
+    //                 .status(404)
+    //                 .json({ message: "View warehouse data failed" });
+    //             }
+    //         }
+    //         else{
+    //             res.status(401).json({message: "xem danh sách kho không thành công vì không phải là chủ kho"})
+    //         } 
+    //     } catch (err) {
+    //         res.status(500).json(err); //HTTP Request code
+    //     }
+    // },
 
     //UPDATE WAREHOUSE
     updateWarehouse: async (req, res) => {
