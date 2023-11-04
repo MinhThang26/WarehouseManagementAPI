@@ -29,7 +29,7 @@ const WarehouseController = {
         }
     },
 
-    // getAnWarehouse: async (req, res) => {
+    // getAnWarehouses: async (req, res) => {
     //     try {
     //         const idOwner = req.query.id_owner;
     //         const owner = await Owner.findById(idOwner).populate("warehouses");
