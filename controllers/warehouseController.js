@@ -88,7 +88,7 @@ const WarehouseController = {
 
             const warehouses1 = await Owner.updateOne({ $pull: { warehouses: id } });
 
-            if (!warehouses&&warehouses1) {
+            if (!warehouses&&!warehouses1) {
                 return res
                     .status(404)
                     .json({ message: `cannot find any warehouses` });
