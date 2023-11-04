@@ -11,7 +11,7 @@ router.post("/create",middlewareController.verifyTokenIsOwner,
 WarehouseController.addWarehouse);
 
 router.get("/list",middlewareController.verifyTokenIsOwner,
-WarehouseController.getAnWarehouse);
+WarehouseController.getAnWarehouses);
 
 router.get("/listWarehouseUser",middlewareController.verifyToken,
 WarehouseController.getAllWarehouseUser);

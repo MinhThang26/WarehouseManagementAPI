@@ -29,40 +29,40 @@ const WarehouseController = {
         }
     },
 
-    getAnWarehouse: async (req, res) => {
-        try {
-            const idOwner = req.query.id_owner;
-            const owner = await Owner.findById(idOwner).populate("warehouses");
-            res.status(200).json(owner);
-        } catch (err) {
-            res.status(500).json(err); //HTTP Request code
-        }
-    },
-
     // getAnWarehouses: async (req, res) => {
     //     try {
     //         const idOwner = req.query.id_owner;
-    //         if(idOwner){
-    //             const warehouses = await Owner.findById(idOwner).populate("warehouses");
-    //             if (warehouses) {
-    //                 res.status(200).json({
-    //                     message: "View warehouse data successfully",
-    //                     warehouses: warehouses,
-    //                 });
-    //             } 
-    //             else{
-    //                 res
-    //                 .status(404)
-    //                 .json({ message: "View warehouse data failed" });
-    //             }
-    //         }
-    //         else{
-    //             res.status(401).json({message: "xem danh sách kho không thành công vì không phải là chủ kho"})
-    //         } 
+    //         const owner = await Owner.findById(idOwner).populate("warehouses");
+    //         res.status(200).json(owner);
     //     } catch (err) {
     //         res.status(500).json(err); //HTTP Request code
     //     }
     // },
+
+    getAnWarehouses: async (req, res) => {
+        try {
+            const idOwner = req.query.id_owner;
+            if(idOwner){
+                const warehouses = await Owner.findById(idOwner).populate("warehouses");
+                if (warehouses) {
+                    res.status(200).json({
+                        message: "View warehouse data successfully",
+                        warehouses: warehouses,
+                    });
+                } 
+                else{
+                    res
+                    .status(404)
+                    .json({ message: "View warehouse data failed" });
+                }
+            }
+            else{
+                res.status(401).json({message: "xem danh sách kho không thành công vì không phải là chủ kho"})
+            } 
+        } catch (err) {
+            res.status(500).json(err); //HTTP Request code
+        }
+    },
 
     //UPDATE WAREHOUSE
     updateWarehouse: async (req, res) => {
@@ -88,7 +88,7 @@ const WarehouseController = {
 
             const warehouses1 = await Owner.updateOne({ $pull: { warehouses: id } });
 
-            if (!warehouses&&warehouses1) {
+            if (!warehouses&&!warehouses1) {
                 return res
                     .status(404)
                     .json({ message: `cannot find any warehouses` });
