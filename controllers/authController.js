@@ -3,6 +3,7 @@ const Admin = require("../models/Admin");
 const Owner = require("../models/Owner");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const Token = require("../models/Token");
 const adminController = require("./adminController");
 
 const authController = {
@@ -146,6 +147,10 @@ const authController = {
           );
           if (validPassword) {
             const accessToken = await authController.generateAccessToken(user);
+            const token = new Token({
+              token: accessToken,
+            });
+            await token.save();
             const { password, ...others } = user._doc;
 
             res.status(200).json({
@@ -168,14 +173,20 @@ const authController = {
   },
   logout: async (req, res) => {
     try {
-      res.status(200).json({ message: "Signed out successfully" });
+      const token = req.headers.authorization;
+
+      if (token) {
+        const tokenAccess = token.split(" ")[1];
+        await Token.deleteOne({ token: tokenAccess });
+        res.status(200).json({ message: "Signed out successfully" });
+      }
     } catch (error) {
       res.status(500).json(error);
     }
   },
   updateAccount: async (req, res) => {
     try {
-      const account = await adminController.checkAccountById(req.query.id);
+      const account = await adminController.checkAccountById(req.user.id);
 
       const property = await authController.isUsernameOrEmailOrPhoneTaken(
         req.body.username,
@@ -217,7 +228,7 @@ const authController = {
   },
   changePassword: async (req, res) => {
     try {
-      const account = await adminController.checkAccountById(req.query.id);
+      const account = await adminController.checkAccountById(req.user.id);
 
       if (account) {
         const validPassword = await bcrypt.compare(
@@ -255,7 +266,7 @@ const authController = {
   },
   getAccountById: async (req, res) => {
     try {
-      const account = await adminController.checkAccountById(req.query.id);
+      const account = await adminController.checkAccountById(req.user.id);
 
       if (account) {
         const { password, ...others } = account._doc;

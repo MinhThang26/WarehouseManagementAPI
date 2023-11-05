@@ -64,7 +64,7 @@ const adminController = {
         res.status(200).json({ message: "Successfully activated account" });
       } else {
         res
-          .status(500)
+          .status(404)
           .json({ message: "The account has been activated unsuccessfully" });
       }
     } catch (error) {
