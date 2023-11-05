@@ -98,6 +98,25 @@ const authController = {
       }
     );
   },
+  getAccount: async (req, res, id) => {
+    try {
+      const account = await adminController.checkAccountById(id);
+
+      if (account) {
+        const { password, ...others } = account._doc;
+        res.status(200).json({
+          success: true,
+          message: "Read data account successfully",
+          others: others,
+        });
+      } else {
+        res.status(404).json({ success: false, message: "Account not found" });
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).json(error);
+    }
+  },
   register: async (req, res) => {
     try {
       const status = req.query.status;
@@ -334,21 +353,30 @@ const authController = {
       res.status(500).json(error);
     }
   },
-  getAccountById: async (req, res) => {
-    try {
-      const account = await adminController.checkAccountById(req.user.id);
 
-      if (account) {
-        const { password, ...others } = account._doc;
-        res.status(200).json({
-          success: false,
-          message: "Read data account successfully",
-          others: others,
-        });
+  getProfile: async (req, res) => {
+    try {
+      const id = req.user.id;
+      if (id) {
+        await authController.getAccount(req, res, id);
       } else {
-        res.status(404).json({ success: false, message: "Account not found" });
+        res.status(404).json({ success: false, message: "Id not found" });
       }
     } catch (error) {
+      console.log(error);
+      res.status(500).json(error);
+    }
+  },
+  getAccountById: async (req, res) => {
+    try {
+      const id = req.query.id;
+      if (id) {
+        await authController.getAccount(req, res, id);
+      } else {
+        res.status(404).json({ success: false, message: "Id not found" });
+      }
+    } catch (error) {
+      console.log(error);
       res.status(500).json(error);
     }
   },
