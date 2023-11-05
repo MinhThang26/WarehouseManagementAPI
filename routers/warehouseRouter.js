@@ -11,7 +11,7 @@ router.post("/create",middlewareController.verifyTokenIsOwner,
 WarehouseController.addWarehouse);
 
 router.get("/list",middlewareController.verifyTokenIsOwner,
-WarehouseController.getAllWarehouses);
+WarehouseController.getAnWarehouses);
 
 router.get("/listWarehouseUser",middlewareController.verifyToken,
 WarehouseController.getAllWarehouseUser);
@@ -19,5 +19,7 @@ WarehouseController.getAllWarehouseUser);
 router.put("/updateWarehouse/:id",middlewareController.verifyToken,WarehouseController.updateWarehouse);
 
 router.delete("/deleteWarehouse/:id",middlewareController.verifyToken,WarehouseController.deleteWarehouse);
+
+router.get("/search",middlewareController.verifyToken,WarehouseController.searchWarehouse);
 
 module.exports = router;
