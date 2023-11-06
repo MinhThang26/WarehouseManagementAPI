@@ -3,6 +3,7 @@ const Admin = require("../models/Admin");
 const Owner = require("../models/Owner");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const Token = require("../models/Token");
 const adminController = require("./adminController");
 
 const authController = {
@@ -33,11 +34,11 @@ const authController = {
 
     if (user) {
       if (username === user.username) {
-        property = "username";
+        property = "Username";
       } else if (email === user.email) {
-        property = "email";
+        property = "Email";
       } else if (parseFloat(phone) === user.phone) {
-        property = "phone";
+        property = "Phone";
       }
     }
 
@@ -57,6 +58,33 @@ const authController = {
     }
     return property;
   },
+  checkUsernameOrEmailOrPhoneOrPasswordIsValid: (
+    username,
+    email,
+    phone,
+    password
+  ) => {
+    var property;
+    const checkUsername = username == "" || username == undefined;
+    const checkEmail = email == "" || email == undefined;
+    const checkPhone = phone == "" || phone == undefined;
+    const checkPassword = password == "" || password == undefined;
+
+    if (checkUsername) {
+      property = "username";
+    }
+    if (checkEmail) {
+      property = "email";
+    }
+    if (checkPhone) {
+      property = "phone";
+    }
+    if (checkPassword) {
+      property = "password";
+    }
+
+    return property;
+  },
   generateAccessToken: (user) => {
     return jwt.sign(
       {
@@ -70,9 +98,36 @@ const authController = {
       }
     );
   },
+  getAccount: async (req, res, id) => {
+    try {
+      const account = await adminController.checkAccountById(id);
+
+      if (account) {
+        const { password, ...others } = account._doc;
+        res.status(200).json({
+          success: true,
+          message: "Read data account successfully",
+          others: others,
+        });
+      } else {
+        res.status(404).json({ success: false, message: "Account not found" });
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).json(error);
+    }
+  },
   register: async (req, res) => {
     try {
       const status = req.query.status;
+
+      const dataValid =
+        authController.checkUsernameOrEmailOrPhoneOrPasswordIsValid(
+          req.body.username,
+          req.body.email,
+          req.body.phone,
+          req.body.password
+        );
 
       const property = await authController.isUsernameOrEmailOrPhoneTaken(
         req.body.username,
@@ -80,8 +135,17 @@ const authController = {
         req.body.phone
       );
 
+      if (dataValid) {
+        res
+          .status(400)
+          .json({ success: false, message: "Missing data " + dataValid });
+        return;
+      }
+
       if (property) {
-        res.status(401).json({ message: property + " has been registered" });
+        res
+          .status(400)
+          .json({ success: false, message: property + " has been registered" });
         return;
       }
 
@@ -100,9 +164,11 @@ const authController = {
 
           const owner = await newOwner.save();
           console.log();
-          res
-            .status(200)
-            .json({ message: "Successfully registered account", owner });
+          res.status(200).json({
+            success: true,
+            message: "Successfully registered account",
+            owner,
+          });
         } else if (status == 1) {
           const newUser = await new User({
             username: req.body.username,
@@ -113,21 +179,25 @@ const authController = {
           });
 
           const user = await newUser.save();
-          res
-            .status(200)
-            .json({ message: "Successfully registered account", user });
+          res.status(200).json({
+            success: true,
+            message: "Successfully registered account",
+            user,
+          });
         } else {
-          res.status(404).json({ message: "Not Found" });
+          res.status(404).json({ success: false, message: "Not Found" });
         }
       } else if (
         req.body.password == undefined ||
         req.body.confirmPassword == undefined
       ) {
-        res
-          .status(401)
-          .json({ message: "Missing password or confirm password" });
+        res.status(400).json({
+          success: false,
+          message: "Missing password or confirm password",
+        });
       } else {
-        res.status(401).json({
+        res.status(400).json({
+          success: false,
           message: "Password and confirm password are not the same",
         });
       }
@@ -146,21 +216,33 @@ const authController = {
           );
           if (validPassword) {
             const accessToken = await authController.generateAccessToken(user);
+            const token = new Token({
+              token: accessToken,
+            });
+            await token.save();
             const { password, ...others } = user._doc;
 
             res.status(200).json({
+              success: true,
               message: "Logged in successfully",
               others: others,
               accessToken: accessToken,
             });
           } else {
-            res.status(401).json({ message: "Password is not valid" });
+            res
+              .status(401)
+              .json({ success: false, message: "Password is not valid" });
           }
         } else {
-          res.status(401).json({ message: "Account has not been activated" });
+          res.status(403).json({
+            success: false,
+            message: "Account has not been activated",
+          });
         }
       } else {
-        res.status(401).json({ message: "Username is not valid" });
+        res
+          .status(400)
+          .json({ success: false, message: "Username is not valid" });
       }
     } catch (error) {
       res.status(500).json(error);
@@ -168,14 +250,22 @@ const authController = {
   },
   logout: async (req, res) => {
     try {
-      res.status(200).json({ message: "Signed out successfully" });
+      const token = req.headers.authorization;
+
+      if (token) {
+        const tokenAccess = token.split(" ")[1];
+        await Token.deleteOne({ token: tokenAccess });
+        res
+          .status(200)
+          .json({ success: true, message: "Signed out successfully" });
+      }
     } catch (error) {
       res.status(500).json(error);
     }
   },
   updateAccount: async (req, res) => {
     try {
-      const account = await adminController.checkAccountById(req.query.id);
+      const account = await adminController.checkAccountById(req.user.id);
 
       const property = await authController.isUsernameOrEmailOrPhoneTaken(
         req.body.username,
@@ -194,7 +284,9 @@ const authController = {
                 phone: req.body.phone,
               },
             });
-            res.status(200).json({ message: "Updated account successfully" });
+            res
+              .status(200)
+              .json({ success: true, message: "Updated account successfully" });
           } else {
             await account.updateOne({
               $set: {
@@ -203,13 +295,18 @@ const authController = {
                 phone: req.body.phone,
               },
             });
-            res.status(200).json({ message: "Updated account successfully" });
+            res
+              .status(200)
+              .json({ success: true, message: "Updated account successfully" });
           }
         } else {
-          res.status(404).json({ message: property + " has been registered" });
+          res.status(400).json({
+            success: false,
+            message: property + " has been registered",
+          });
         }
       } else {
-        res.status(404).json({ message: "Account not found" });
+        res.status(404).json({ success: false, message: "Account not found" });
       }
     } catch (error) {
       res.status(500).json(error);
@@ -217,7 +314,7 @@ const authController = {
   },
   changePassword: async (req, res) => {
     try {
-      const account = await adminController.checkAccountById(req.query.id);
+      const account = await adminController.checkAccountById(req.user.id);
 
       if (account) {
         const validPassword = await bcrypt.compare(
@@ -233,39 +330,53 @@ const authController = {
                 password: hashed,
               },
             });
-            res
-              .status(200)
-              .json({ message: "Change password account successfully" });
+            res.status(200).json({
+              success: true,
+              message: "Change password account successfully",
+            });
           } else {
-            res.status(401).json({
+            res.status(400).json({
+              success: false,
               message: "Password and confirm password are not the same",
             });
           }
         } else {
-          res.status(401).json({
+          res.status(400).json({
+            success: false,
             message: "The new password cannot be the same as the old password",
           });
         }
       } else {
-        res.status(404).json({ message: "Account not found" });
+        res.status(404).json({ success: false, message: "Account not found" });
       }
     } catch (error) {
       res.status(500).json(error);
     }
   },
-  getAccountById: async (req, res) => {
-    try {
-      const account = await adminController.checkAccountById(req.query.id);
 
-      if (account) {
-        const { password, ...others } = account._doc;
-        res
-          .status(200)
-          .json({ message: "Read data account successfully", others: others });
+  getProfile: async (req, res) => {
+    try {
+      const id = req.user.id;
+      if (id) {
+        await authController.getAccount(req, res, id);
       } else {
-        res.status(404).json({ message: "Account not found" });
+        res.status(404).json({ success: false, message: "Id not found" });
       }
     } catch (error) {
+      console.log(error);
+      res.status(500).json(error);
+    }
+  },
+  getAccountById: async (req, res) => {
+    try {
+      const id = req.query.id;
+      if (id) {
+        await authController.getAccount(req, res, id);
+      } else {
+        res.status(404).json({ success: false, message: "Id not found" });
+      }
+    } catch (error) {
+      console.log(error);
       res.status(500).json(error);
     }
   },
