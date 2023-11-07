@@ -9,7 +9,22 @@ const WarehouseController = {
             const idOwner = req.query.id_owner;
             if (idOwner) {
                 const newWarehouse = new Warehouse(req.body);
-                const saveWarehouse = await newWarehouse.save();
+                if(!req.body.wareHouseName){
+                    res.status(401).json({message: "Không được bỏ trống tên kho hàng "});
+                }
+                else if(!req.body.address){
+                    res.status(401).json({message: "Không được bỏ trống địa chỉ kho hàng "});
+                }
+                else if(!req.body.category){
+                    res.status(401).json({message: "Không được bỏ trống danh mục kho"});
+                }
+                else if (!req.body.monney) {
+                    res.status(401).json({message: "Không được bỏ trống giá tiền kho hàng "});
+                }
+                else{
+                    const saveWarehouse = await newWarehouse.save();
+                    res.status(200).json(saveWarehouse);
+                }
                 if (req.body.owner) {
                     const owner = Owner.findById(req.body.owner);
                     await owner.updateOne({ $push: { warehouses: saveWarehouse._id } });
@@ -17,8 +32,7 @@ const WarehouseController = {
                 if (req.body.category) {
                     const category = WarehouseCategory.findById(req.body.category);
                     await category.updateOne({ $push: { warehouses: saveWarehouse._id } });
-                }
-                res.status(200).json(saveWarehouse);
+                }   
             }
             else {
                 res.status(404).json({ message: "thêm không thành công do không phải là chủ kho" });

@@ -5,7 +5,6 @@ const wareHouseSchema = mongoose.Schema(
     wareHouseName: {
       type: String,
       required: true,
-      unique: true,
     },
     address: {
       type: String,
