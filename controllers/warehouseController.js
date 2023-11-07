@@ -56,23 +56,23 @@ const WarehouseController = {
     getAnWarehouses: async (req, res) => {
         try {
             const idOwner = req.query.id_owner;
-            if(idOwner){
+            if (idOwner) {
                 const warehouses = await Owner.findById(idOwner).populate("warehouses");
                 if (warehouses) {
                     res.status(200).json({
                         message: "View warehouse data successfully",
                         warehouses: warehouses,
                     });
-                } 
-                else{
+                }
+                else {
                     res
-                    .status(404)
-                    .json({ message: "View warehouse data failed" });
+                        .status(404)
+                        .json({ message: "View warehouse data failed" });
                 }
             }
-            else{
-                res.status(401).json({message: "xem danh sách kho không thành công vì không phải là chủ kho"})
-            } 
+            else {
+                res.status(401).json({ message: "xem danh sách kho không thành công vì không phải là chủ kho" })
+            }
         } catch (err) {
             res.status(500).json(err); //HTTP Request code
         }
@@ -97,17 +97,21 @@ const WarehouseController = {
     //DELETE WAREHOUSE
     deleteWarehouse: async (req, res) => {
         try {
-            const { id } = req.params;
-            const warehouses = await Warehouse.findByIdAndDelete(id);
-
-            const warehouses1 = await Owner.updateOne({ $pull: { warehouses: id } });
-
-            if (!warehouses&&!warehouses1) {
-                return res
-                    .status(404)
-                    .json({ message: `cannot find any warehouses` });
+            const idOwner = req.query.id_owner;
+            if (idOwner) {
+                const { id } = req.params;
+                const warehouses = await Warehouse.findByIdAndDelete(id);
+                const warehouses1 = await Owner.updateOne({ $pull: { warehouses: id } });
+                if (warehouses && warehouses1) {
+                    res.status(200).json({ message: "Delete warehouse successfully!" });
+                } else {
+                    res.status(404).json({ message: `cannot find any warehouses` });
+                }
             }
-            res.status(200).json("Delete warehouse successfully!");
+            else {
+                res.status(401).json({ message: "Xoa kho không thành công vì không phải là chủ kho" })
+            }
+
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
