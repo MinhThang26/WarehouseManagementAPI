@@ -34,7 +34,7 @@ router.get(
 );
 router.get(
   "/list-owner-active",
-  middlewareController.verifyTokenIsAdmin,
+  middlewareController.verifyToken,
   adminController.getAllOwnerByIsActivate
 );
 router.get(
@@ -44,7 +44,7 @@ router.get(
 );
 router.get(
   "/list-user-active",
-  middlewareController.verifyTokenIsAdmin,
+  middlewareController.verifyToken,
   adminController.getAllUserByIsActivate
 );
 router.get(

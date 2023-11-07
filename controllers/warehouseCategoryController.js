@@ -14,13 +14,17 @@ const warehouseCategoryController = {
 
       if (categories) {
         res.status(200).json({
+          success: true,
           message: "View warehouse categories data successfully",
           categories: categories,
         });
       } else {
         res
-          .status(404)
-          .json({ message: "View warehouse category data failed" });
+          .status(400)
+          .json({
+            success: false,
+            message: "View warehouse category data failed",
+          });
       }
     } catch (error) {
       res.status(500).json(error);

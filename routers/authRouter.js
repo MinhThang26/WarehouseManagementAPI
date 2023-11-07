@@ -22,5 +22,10 @@ router.get(
   middlewareController.verifyToken,
   authController.getAccountById
 );
+router.get(
+  "/profile",
+  middlewareController.verifyToken,
+  authController.getProfile
+);
 
 module.exports = router;
