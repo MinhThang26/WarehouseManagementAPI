@@ -22,4 +22,6 @@ router.delete("/deleteWarehouse/:id",middlewareController.verifyTokenIsOwner,War
 
 router.get("/search",middlewareController.verifyToken,WarehouseController.searchWarehouse);
 
+router.get("/getAWarehouse",middlewareController.verifyToken,WarehouseController.getAWarehouse);
+
 module.exports = router;
