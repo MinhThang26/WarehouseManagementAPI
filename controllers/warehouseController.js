@@ -8,7 +8,13 @@ const WarehouseController = {
         try {
             const idOwner = req.query.id_owner;
             if (idOwner) {
-                const newWarehouse = new Warehouse(req.body);
+                const newWarehouse = new Warehouse({
+                    wareHouseName: req.body.wareHouseName,
+                    address: req.body.address,
+                    category: req.body.category,
+                    monney: req.body.monney,
+                    owner: idOwner
+                });
                 if(!req.body.wareHouseName){
                     res.status(401).json({message: "Không được bỏ trống tên kho hàng "});
                 }
@@ -21,20 +27,26 @@ const WarehouseController = {
                 else if (!req.body.monney) {
                     res.status(401).json({message: "Không được bỏ trống giá tiền kho hàng "});
                 }
-                else{
-                    const saveWarehouse = await newWarehouse.save();
-                    res.status(200).json(saveWarehouse);
+                else if(!idOwner){
+                    res.status(401).json({message: "Không phải chủ kho"});
                 }
-                if (req.body.owner) {
-                    const owner = Owner.findById(req.body.owner);
+                else
+                {
+                const saveWarehouse = await newWarehouse.save();
+                res.status(200).json(saveWarehouse);
+                
+                if (idOwner) {
+                    const owner = Owner.findById(idOwner);
                     await owner.updateOne({ $push: { warehouses: saveWarehouse._id } });
                 }
                 if (req.body.category) {
                     const category = WarehouseCategory.findById(req.body.category);
                     await category.updateOne({ $push: { warehouses: saveWarehouse._id } });
                 }   
+                }
             }
-            else {
+            else 
+            {
                 res.status(404).json({ message: "thêm không thành công do không phải là chủ kho" });
             }
         }
