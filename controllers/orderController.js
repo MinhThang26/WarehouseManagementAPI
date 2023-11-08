@@ -30,29 +30,31 @@ const OrderController = {
 
     deleteOrder: async (req, res) => {
         try {
-            const  id  = req.query.id;
-            // const order = await Order.findByIdAndDelete(id);
-            
-            // const user = await User.find(
-            //     {orders: id}
-            // );
-            // const user = await User.updateOne({ $pull: {orders: id}})
-            // console.log(user);
-            // const order2 = await User.updateOne({ $pull: { orders: id } });
-            // const order3 = await Warehouse.updateOne({ $pull: { orders: id } });
-            // console.log(order);
+            const idOwner = req.query.id_owner;
 
-            // if (!order&&order1&&order2&&order3) {
-            //     return res
-            //         .status(404)
-            //         .json({ message: `cannot find any order` });
-            // }
-            await User.updateMany({orders: id},{$pull: {orders:id}})
-            await Owner.updateMany({orders: id},{$pull: {orders:id}})
-            await Warehouse.updateMany({orders: id},{$pull: {orders:id}})
+            if (idOwner) {
+                const  {id}  = req.params;
 
-            res.status(200).json("Delete order successfully!");
-            // console.log(order1,order2);
+                const order = await Order.findByIdAndDelete(id);
+                const order1 = await User.updateMany({ $pull: { orders: id } });
+                const order2 = await Owner.updateMany({ $pull: { orders: id } });
+                const order3 = await Warehouse.updateMany({ $pull: { orders: id } });
+
+                // await User.updateMany({orders: id},{$pull: {orders:id}})
+                // await Owner.updateMany({orders: id},{$pull: {orders:id}})
+                // await Warehouse.updateMany({orders: id},{$pull: {orders:id}})
+
+                console.log(order);
+                if (order&&order1&&order2&&order3) {
+                    res.status(200).json("Delete order successfully!");
+                }else {
+                    res
+                        .status(404)
+                        .json({ message: `cannot find any order` });
+                }
+            } else {
+                res.status(401).json({ message: "Xoa kho không thành công vì không phải là chủ kho" })
+            }
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
