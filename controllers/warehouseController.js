@@ -139,21 +139,6 @@ const WarehouseController = {
     //search
     searchWarehouse: async (req, res) => {
         try {
-            // const result = await Owner.aggregate(
-            //     [
-            //         {
-            //             $search: {
-            //                 index: "search-text",
-            //                 text: {
-            //                     query: req.query.username,
-            //                     path: {
-            //                         wildcard: "*"
-            //                     }
-            //                 }
-            //             },
-            //         }
-            //     ]
-            // )
             const result = await Owner.findOne({
                 $or: [
                     { username: req.query.username },
@@ -174,7 +159,32 @@ const WarehouseController = {
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
+    },
+
+    //get a warehouse
+    getAWarehouse: async (req, res) => {
+        try {
+            const warehouse = await Warehouse.findOne({
+                $or: [
+                    { _id: req.query.id }
+                ]
+            })
+            console.log(warehouse);
+            if (warehouse) {
+                res.status(200).json({
+                    message: "View warehouse data successfully",
+                    warehouse: warehouse,
+                });
+            } else {
+                res
+                    .status(404)
+                    .json({ message: "View warehouse data failed" });
+            }
+        } catch {
+            res.status(500).json({ message: error.message });
+        }
     }
+
 };
 
 module.exports = WarehouseController;

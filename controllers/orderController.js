@@ -67,5 +67,28 @@ const OrderController = {
             res.status(500).json(err); //HTTP Request code
         }
     },
+
+    getAOrder: async (req, res) => {
+        try {
+            const order = await Order.findOne({
+                $or: [
+                    { _id: req.query.id }
+                ]
+            })
+            console.log(order);
+            if (order) {
+                res.status(200).json({
+                    message: "View order data successfully",
+                    Order: order,
+                });
+            } else {
+                res
+                    .status(404)
+                    .json({ message: "View order data failed" });
+            }
+        } catch {
+            res.status(500).json({ message: error.message });
+        }
+    }
 };
 module.exports = OrderController;
