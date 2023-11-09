@@ -9,7 +9,7 @@ router.get("/logout", middlewareController.verifyToken, authController.logout);
 router.put(
   "/update-account",
   middlewareController.verifyToken,
-  uploadCloud.single("image"),
+  uploadCloud.single("avatar"),
   authController.updateAccount
 );
 router.put(
@@ -27,5 +27,6 @@ router.get(
   middlewareController.verifyToken,
   authController.getProfile
 );
+router.delete("/delete-token", authController.deleteToken);
 
 module.exports = router;
