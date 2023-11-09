@@ -18,8 +18,10 @@ WarehouseController.getAllWarehouseUser);
 
 router.put("/updateWarehouse/:id",middlewareController.verifyToken,WarehouseController.updateWarehouse);
 
-router.delete("/deleteWarehouse/:id",middlewareController.verifyToken,WarehouseController.deleteWarehouse);
+router.delete("/deleteWarehouse/:id",middlewareController.verifyTokenIsOwner,WarehouseController.deleteWarehouse);
 
 router.get("/search",middlewareController.verifyToken,WarehouseController.searchWarehouse);
+
+router.get("/getAWarehouse",middlewareController.verifyToken,WarehouseController.getAWarehouse);
 
 module.exports = router;

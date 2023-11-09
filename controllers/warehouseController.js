@@ -8,17 +8,41 @@ const WarehouseController = {
         try {
             const idOwner = req.query.id_owner;
             if (idOwner) {
-                const newWarehouse = new Warehouse(req.body);
-                const saveWarehouse = await newWarehouse.save();
-                if (req.body.owner) {
-                    const owner = Owner.findById(req.body.owner);
-                    await owner.updateOne({ $push: { warehouses: saveWarehouse._id } });
+                const newWarehouse = new Warehouse({
+                    wareHouseName: req.body.wareHouseName,
+                    address: req.body.address,
+                    category: req.body.category,
+                    monney: req.body.monney,
+                    owner: idOwner
+                });
+                if (!req.body.wareHouseName) {
+                    res.status(401).json({ message: "Không được bỏ trống tên kho hàng " });
                 }
-                if (req.body.category) {
-                    const category = WarehouseCategory.findById(req.body.category);
-                    await category.updateOne({ $push: { warehouses: saveWarehouse._id } });
+                else if (!req.body.address) {
+                    res.status(401).json({ message: "Không được bỏ trống địa chỉ kho hàng " });
                 }
-                res.status(200).json(saveWarehouse);
+                else if (!req.body.category) {
+                    res.status(401).json({ message: "Không được bỏ trống danh mục kho" });
+                }
+                else if (!req.body.monney) {
+                    res.status(401).json({ message: "Không được bỏ trống giá tiền kho hàng " });
+                }
+                else if (!idOwner) {
+                    res.status(401).json({ message: "Không phải chủ kho" });
+                }
+                else {
+                    const saveWarehouse = await newWarehouse.save();
+                    res.status(200).json(saveWarehouse);
+
+                    if (idOwner) {
+                        const owner = Owner.findById(idOwner);
+                        await owner.updateOne({ $push: { warehouses: saveWarehouse._id } });
+                    }
+                    if (req.body.category) {
+                        const category = WarehouseCategory.findById(req.body.category);
+                        await category.updateOne({ $push: { warehouses: saveWarehouse._id } });
+                    }
+                }
             }
             else {
                 res.status(404).json({ message: "thêm không thành công do không phải là chủ kho" });
@@ -42,23 +66,23 @@ const WarehouseController = {
     getAnWarehouses: async (req, res) => {
         try {
             const idOwner = req.query.id_owner;
-            if(idOwner){
+            if (idOwner) {
                 const warehouses = await Owner.findById(idOwner).populate("warehouses");
                 if (warehouses) {
                     res.status(200).json({
                         message: "View warehouse data successfully",
                         warehouses: warehouses,
                     });
-                } 
-                else{
+                }
+                else {
                     res
-                    .status(404)
-                    .json({ message: "View warehouse data failed" });
+                        .status(404)
+                        .json({ message: "View warehouse data failed" });
                 }
             }
-            else{
-                res.status(401).json({message: "xem danh sách kho không thành công vì không phải là chủ kho"})
-            } 
+            else {
+                res.status(401).json({ message: "xem danh sách kho không thành công vì không phải là chủ kho" })
+            }
         } catch (err) {
             res.status(500).json(err); //HTTP Request code
         }
@@ -83,17 +107,21 @@ const WarehouseController = {
     //DELETE WAREHOUSE
     deleteWarehouse: async (req, res) => {
         try {
-            const { id } = req.params;
-            const warehouses = await Warehouse.findByIdAndDelete(id);
-
-            const warehouses1 = await Owner.updateOne({ $pull: { warehouses: id } });
-
-            if (!warehouses&&!warehouses1) {
-                return res
-                    .status(404)
-                    .json({ message: `cannot find any warehouses` });
+            const idOwner = req.query.id_owner;
+            if (idOwner) {
+                const { id } = req.params;
+                const warehouses = await Warehouse.findByIdAndDelete(id);
+                const warehouses1 = await Owner.updateOne({ $pull: { warehouses: id } });
+                if (warehouses && warehouses1) {
+                    res.status(200).json({ message: "Delete warehouse successfully!" });
+                } else {
+                    res.status(404).json({ message: `cannot find any warehouses` });
+                }
             }
-            res.status(200).json("Delete warehouse successfully!");
+            else {
+                res.status(401).json({ message: "Xoa kho không thành công vì không phải là chủ kho" })
+            }
+
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
@@ -121,21 +149,6 @@ const WarehouseController = {
     //search
     searchWarehouse: async (req, res) => {
         try {
-            // const result = await Owner.aggregate(
-            //     [
-            //         {
-            //             $search: {
-            //                 index: "search-text",
-            //                 text: {
-            //                     query: req.query.username,
-            //                     path: {
-            //                         wildcard: "*"
-            //                     }
-            //                 }
-            //             },
-            //         }
-            //     ]
-            // )
             const result = await Owner.findOne({
                 $or: [
                     { username: req.query.username },
@@ -156,7 +169,32 @@ const WarehouseController = {
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
+    },
+
+    //get a warehouse
+    getAWarehouse: async (req, res) => {
+        try {
+            const warehouse = await Warehouse.findOne({
+                $or: [
+                    { _id: req.query.id }
+                ]
+            })
+            console.log(warehouse);
+            if (warehouse) {
+                res.status(200).json({
+                    message: "View warehouse data successfully",
+                    warehouse: warehouse,
+                });
+            } else {
+                res
+                    .status(404)
+                    .json({ message: "View warehouse data failed" });
+            }
+        } catch {
+            res.status(500).json({ message: error.message });
+        }
     }
+
 };
 
 module.exports = WarehouseController;
