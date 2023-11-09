@@ -8,7 +8,9 @@ router.delete("/deleteOrderByUser",middlewareController.verifyToken,OrderControl
 
 router.delete("/deleteOrderByOwner",middlewareController.verifyTokenIsOwner,OrderController.deleteOrderByOwner);
 
-//router.get("/list",OrderController.getAnOrder);
+router.get("/listOrderByOwner",middlewareController.verifyTokenIsOwner,OrderController.getOrderForOwner);
+
+router.get("/listOrderByUser",middlewareController.verifyToken,OrderController.getOrderForUser);
 
 router.get("/getAOrder",middlewareController.verifyToken,OrderController.getAOrder);
 
