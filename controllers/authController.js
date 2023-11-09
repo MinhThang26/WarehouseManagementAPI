@@ -65,25 +65,60 @@ const authController = {
     password
   ) => {
     var property;
-    const checkUsername = username == "" || username == undefined;
-    const checkEmail = email == "" || email == undefined;
-    const checkPhone = phone == "" || phone == undefined;
-    const checkPassword = password == "" || password == undefined;
+    const checkUsername = username == undefined || username.length == 0;
+    const checkEmail = email == undefined || email.length == 0;
+    const checkPhone = phone == undefined || phone.length == 0;
+    const checkPassword = password == undefined || password.length == 0;
 
     if (checkUsername) {
       property = "username";
+      return property;
     }
+
     if (checkEmail) {
       property = "email";
+      return property;
     }
     if (checkPhone) {
       property = "phone";
+      return property;
     }
     if (checkPassword) {
       property = "password";
+      return property;
     }
 
     return property;
+  },
+  checkPassword: async (password, confirmPassword) => {
+    var property;
+
+    const checkNull = password === undefined || confirmPassword === undefined;
+    if (checkNull) {
+      property = "Missing password or confirm password";
+      return property;
+    }
+    const checkLengthPass = password.length < 6 || confirmPassword.length < 6;
+    if (checkLengthPass) {
+      property =
+        "Password or confirm password cannot be less than 6 characters";
+      return property;
+    }
+    return property;
+  },
+  checkLength: (username, password, email) => {
+    var length;
+    if (username.length < 6) {
+      length = "Username cannot be less than 6 characters";
+      return length;
+    } else if (password.length < 6) {
+      length = "Password cannot be less than 6 characters";
+      return length;
+    } else if (email.length < 10) {
+      length = "Email cannot be less than 10 characters";
+      return length;
+    }
+    return length;
   },
   generateAccessToken: (user) => {
     return jwt.sign(
@@ -128,19 +163,26 @@ const authController = {
           req.body.phone,
           req.body.password
         );
-
-      const property = await authController.isUsernameOrEmailOrPhoneTaken(
-        req.body.username,
-        req.body.email,
-        req.body.phone
-      );
-
       if (dataValid) {
         res
           .status(400)
           .json({ success: false, message: "Missing data " + dataValid });
         return;
       }
+      const checkLength = await authController.checkLength(
+        req.body.username,
+        req.body.password,
+        req.body.email
+      );
+      if (checkLength) {
+        res.status(400).json({ success: false, message: checkLength });
+        return;
+      }
+      const property = await authController.isUsernameOrEmailOrPhoneTaken(
+        req.body.username,
+        req.body.email,
+        req.body.phone
+      );
 
       if (property) {
         res
@@ -316,11 +358,21 @@ const authController = {
     try {
       const account = await adminController.checkAccountById(req.user.id);
 
+      const checkPassword = await authController.checkPassword(
+        req.body.password,
+        req.body.confirmPassword
+      );
+
+      if (checkPassword) {
+        res.status(400).json({ success: false, message: checkPassword });
+        return;
+      }
       if (account) {
         const validPassword = await bcrypt.compare(
           req.body.password,
           account.password
         );
+
         if (!validPassword) {
           if (req.body.password === req.body.confirmPassword) {
             const salt = await bcrypt.genSalt(10);
@@ -353,7 +405,6 @@ const authController = {
       res.status(500).json(error);
     }
   },
-
   getProfile: async (req, res) => {
     try {
       const id = req.user.id;
@@ -377,6 +428,14 @@ const authController = {
       }
     } catch (error) {
       console.log(error);
+      res.status(500).json(error);
+    }
+  },
+  deleteToken: async (req, res) => {
+    try {
+      await Token.deleteMany();
+      res.status(200).json("success");
+    } catch (error) {
       res.status(500).json(error);
     }
   },
