@@ -1,13 +1,16 @@
 const router = require("express").Router();
-const makeMiddleware = require("multer/lib/make-middleware");
 const OrderController  = require("../controllers/orderController");
 const middlewareController = require("../controllers/middlewareController");
 
-router.post('/create',OrderController.addOrder);
+router.post('/create',middlewareController.verifyToken,OrderController.addOrder);
 
-router.delete("/deleteOrder/:id",OrderController.deleteOrder);
+router.delete("/deleteOrderByUser",middlewareController.verifyToken,OrderController.deleteOrderByUser);
 
-router.get("/list",OrderController.getAnOrder);
+router.delete("/deleteOrderByOwner",middlewareController.verifyTokenIsOwner,OrderController.deleteOrderByOwner);
+
+router.get("/listOrderByOwner",middlewareController.verifyTokenIsOwner,OrderController.getOrderForOwner);
+
+router.get("/listOrderByUser",middlewareController.verifyToken,OrderController.getOrderForUser);
 
 router.get("/getAOrder",middlewareController.verifyToken,OrderController.getAOrder);
 

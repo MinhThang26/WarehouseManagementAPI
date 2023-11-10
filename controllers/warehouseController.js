@@ -8,31 +8,41 @@ const WarehouseController = {
         try {
             const idOwner = req.query.id_owner;
             if (idOwner) {
-                const newWarehouse = new Warehouse(req.body);
-                if(!req.body.wareHouseName){
-                    res.status(401).json({message: "Không được bỏ trống tên kho hàng "});
+                const newWarehouse = new Warehouse({
+                    wareHouseName: req.body.wareHouseName,
+                    address: req.body.address,
+                    category: req.body.category,
+                    monney: req.body.monney,
+                    owner: idOwner
+                });
+                if (!req.body.wareHouseName) {
+                    res.status(401).json({ message: "Không được bỏ trống tên kho hàng " });
                 }
-                else if(!req.body.address){
-                    res.status(401).json({message: "Không được bỏ trống địa chỉ kho hàng "});
+                else if (!req.body.address) {
+                    res.status(401).json({ message: "Không được bỏ trống địa chỉ kho hàng " });
                 }
-                else if(!req.body.category){
-                    res.status(401).json({message: "Không được bỏ trống danh mục kho"});
+                else if (!req.body.category) {
+                    res.status(401).json({ message: "Không được bỏ trống danh mục kho" });
                 }
                 else if (!req.body.monney) {
-                    res.status(401).json({message: "Không được bỏ trống giá tiền kho hàng "});
+                    res.status(401).json({ message: "Không được bỏ trống giá tiền kho hàng " });
                 }
-                else{
+                else if (!idOwner) {
+                    res.status(401).json({ message: "Không phải chủ kho" });
+                }
+                else {
                     const saveWarehouse = await newWarehouse.save();
                     res.status(200).json(saveWarehouse);
+
+                    if (idOwner) {
+                        const owner = Owner.findById(idOwner);
+                        await owner.updateOne({ $push: { warehouses: saveWarehouse._id } });
+                    }
+                    if (req.body.category) {
+                        const category = WarehouseCategory.findById(req.body.category);
+                        await category.updateOne({ $push: { warehouses: saveWarehouse._id } });
+                    }
                 }
-                if (req.body.owner) {
-                    const owner = Owner.findById(req.body.owner);
-                    await owner.updateOne({ $push: { warehouses: saveWarehouse._id } });
-                }
-                if (req.body.category) {
-                    const category = WarehouseCategory.findById(req.body.category);
-                    await category.updateOne({ $push: { warehouses: saveWarehouse._id } });
-                }   
             }
             else {
                 res.status(404).json({ message: "thêm không thành công do không phải là chủ kho" });
@@ -56,22 +66,20 @@ const WarehouseController = {
     getAnWarehouses: async (req, res) => {
         try {
             const idOwner = req.query.id_owner;
-            if (idOwner) {
-                const warehouses = await Owner.findById(idOwner).populate("warehouses");
-                if (warehouses) {
-                    res.status(200).json({
-                        message: "View warehouse data successfully",
-                        warehouses: warehouses,
-                    });
-                }
-                else {
-                    res
-                        .status(404)
-                        .json({ message: "View warehouse data failed" });
-                }
+            if (!idOwner) {
+                res.status(401).json({ message: "xem danh sách kho không thành công vì không phải là chủ kho" })
             }
             else {
-                res.status(401).json({ message: "xem danh sách kho không thành công vì không phải là chủ kho" })
+                const owner = await Owner.findById(idOwner).populate("warehouses");
+                const warehouse = owner.warehouses;
+                console.log(warehouse);
+
+                if(!warehouse){
+                    res.status(401).json({ message: "khong co kho hang"});
+                }
+                else {
+                    res.status(200).json(warehouse);
+                }
             }
         } catch (err) {
             res.status(500).json(err); //HTTP Request code
