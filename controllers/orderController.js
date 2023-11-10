@@ -17,6 +17,10 @@ const OrderController = {
                 const user = User.findById(req.body.user);
                 await user.updateOne({ $push: { orders: saveOrder._id } });
             }
+            if (req.body.warehouses) {
+                const warehouses = Warehouse.findById(req.body.warehouses);
+                await warehouses.updateOne({ $push: { orders: saveOrder._id } });
+            }
             res.status(200).json(saveOrder);
         }
          catch (err) {
@@ -26,20 +30,29 @@ const OrderController = {
 
     deleteOrder: async (req, res) => {
         try {
-            const { id } = req.params;
-            const order = await Order.findByIdAndDelete(id);
-            const order1 = await User.updateOne({ $pull: { orders: id } });
-            const order2 = await Owner.updateOne({ $pull: { orders: id } });
-            const order3 = await Warehouse.updateOne({ $pull: { orders: id } });
-            console.log(order1);
+            const  id  = req.query.id;
+            // const order = await Order.findByIdAndDelete(id);
+            
+            // const user = await User.find(
+            //     {orders: id}
+            // );
+            // const user = await User.updateOne({ $pull: {orders: id}})
+            // console.log(user);
+            // const order2 = await User.updateOne({ $pull: { orders: id } });
+            // const order3 = await Warehouse.updateOne({ $pull: { orders: id } });
+            // console.log(order);
 
-            if (!order&&order1&&order2&&order3) {
-                return res
-                    .status(404)
-                    .json({ message: `cannot find any order` });
-            }
+            // if (!order&&order1&&order2&&order3) {
+            //     return res
+            //         .status(404)
+            //         .json({ message: `cannot find any order` });
+            // }
+            await User.updateMany({orders: id},{$pull: {orders:id}})
+            await Owner.updateMany({orders: id},{$pull: {orders:id}})
+            await Warehouse.updateMany({orders: id},{$pull: {orders:id}})
+
             res.status(200).json("Delete order successfully!");
-            console.log(order1,order2);
+            // console.log(order1,order2);
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
