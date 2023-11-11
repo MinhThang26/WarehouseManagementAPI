@@ -166,12 +166,15 @@ const adminController = {
   getAllOwnerByIsActivate: async (req, res) => {
     try {
       const owners = await Owner.find({ isActive: true });
-      const { password, ...accounts } = owners._doc;
+      const accountsWithoutPassword = owners.map((account) => {
+        const { password, ...accountWithoutPassword } = account._doc;
+        return accountWithoutPassword;
+      });
       if (owners) {
         res.status(200).json({
           success: true,
           message: "Read the list of successfully activated accounts owner",
-          owners: accounts,
+          owners: accountsWithoutPassword,
         });
       } else {
         res.status(400).json({
@@ -186,12 +189,15 @@ const adminController = {
   getAllOwnerByNotActivate: async (req, res) => {
     try {
       const owners = await Owner.find({ isActive: false });
-      const { password, ...accounts } = owners._doc;
+      const accountsWithoutPassword = owners.map((account) => {
+        const { password, ...accountWithoutPassword } = account._doc;
+        return accountWithoutPassword;
+      });
       if (owners) {
         res.status(200).json({
           success: true,
           message: "Read the list of successfully activated accounts owner",
-          owners: accounts,
+          owners: accountsWithoutPassword,
         });
       } else {
         res.status(400).json({
@@ -206,12 +212,15 @@ const adminController = {
   getAllUserByIsActivate: async (req, res) => {
     try {
       const users = await User.find({ isActive: true });
-      const { password, ...accounts } = users._doc;
+      const accountsWithoutPassword = users.map((account) => {
+        const { password, ...accountWithoutPassword } = account._doc;
+        return accountWithoutPassword;
+      });
       if (users) {
         res.status(200).json({
           success: true,
           message: "Read the list of successfully activated accounts users",
-          users: accounts,
+          users: accountsWithoutPassword,
         });
       } else {
         res.status(400).json({
@@ -226,12 +235,15 @@ const adminController = {
   getAllUserByNotActivate: async (req, res) => {
     try {
       const users = await User.find({ isActive: false });
-      const { password, ...accounts } = users._doc;
+      const accountsWithoutPassword = users.map((account) => {
+        const { password, ...accountWithoutPassword } = account._doc;
+        return accountWithoutPassword;
+      });
       if (users) {
         res.status(200).json({
           success: true,
           message: "Read the list of successfully activated accounts users",
-          users: accounts,
+          users: accountsWithoutPassword,
         });
       } else {
         res.status(400).json({

@@ -17,7 +17,7 @@ const middlewareController = {
       if (tokenArray.includes(token)) {
         jwt.verify(token, process.env.JWT_ACCESS_KEY, async (err, user) => {
           if (err) {
-            await Token.deleteOne({ token });
+            await Token.deleteOne({ token: token });
             res
               .status(403)
               .json({ success: false, message: "Token is not valid" });
@@ -27,10 +27,10 @@ const middlewareController = {
           next();
         });
       } else {
-        console.log("You're not authorized to access or Signed out");
+        console.log("Token is not valid or Signed out");
         res.status(401).json({
           success: false,
-          message: "You're not authorized to access or Signed out",
+          message: "Token is not valid or Signed out",
         });
       }
     } else {
