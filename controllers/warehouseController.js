@@ -142,7 +142,7 @@ const WarehouseController = {
     //List WAREHOUSE in user
     getAllWarehouseUser: async (req, res) => {
         try {
-            const warehouse = await Warehouse.find();
+            const warehouse = await Warehouse.find().populate({path: "category",select: "name"}).populate("owner");
             if (warehouse) {
                 res.status(200).json({
                     message: "View warehouse data successfully",
@@ -190,7 +190,7 @@ const WarehouseController = {
                 $or: [
                     { _id: req.query.id }
                 ]
-            })
+            }).populate({path: "category",select: "name"}).populate("owner");
             console.log(warehouse);
             if (warehouse) {
                 res.status(200).json({
