@@ -155,16 +155,49 @@ const OrderController = {
                     res.status(500).json({ message: error.message });
                 }
             },
-        // getAnOrder: async (req, res) => {
-        //     try {
-        //         const idUser = req.query.id_user;
-        //         const order = await User.findById(idUser).populate("orders");
-        //         res.status(200).json(order);
-        //     } catch (err) {
-        //         res.status(500).json(err); //HTTP Request code
-        //     }
-        // },
-
+            getOrderForOwner: async (req, res) => {
+                try {
+                    const idOwner = req.query.id_owner;
+                    if (!idOwner) {
+                        res.status(401).json({ message: "xem danh sách đơn hàng không thành công vì không phải là chủ kho" })
+                    }
+                    else {
+                        const owner = await Owner.findById(idOwner).populate("orders");
+                        const order = owner.orders;
+                        console.log(order);
+        
+                        if(!order){
+                            res.status(401).json({ message: "khong co don hang"});
+                        }
+                        else {
+                            res.status(200).json(order);
+                        }
+                    }
+                } catch (err) {
+                    res.status(500).json(err); //HTTP Request code
+                }
+            },
+            getOrderForUser: async (req, res) => {
+                try {
+                    const idUser = req.query.id_user;
+                    if (!idUser) {
+                        res.status(401).json({ message: "xem danh sách đơn hàng không thành công vì không phải là khách hàng" })
+                    }
+                    else {
+                        const user = await User.findById(idUser).populate("orders");
+                        const order = user.orders;
+                        console.log(order);
+                        if(!order){
+                            res.status(401).json({ message: "khong co don hang"});
+                        }
+                        else {
+                            res.status(200).json(order);
+                        }
+                    }
+                } catch (err) {
+                    res.status(500).json(err); //HTTP Request code
+                }
+            },
             getAOrder: async (req, res) => {
                 try {
                     const order = await Order.findOne({

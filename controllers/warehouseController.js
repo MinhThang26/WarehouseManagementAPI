@@ -66,22 +66,20 @@ const WarehouseController = {
     getAnWarehouses: async (req, res) => {
         try {
             const idOwner = req.query.id_owner;
-            if (idOwner) {
-                const warehouses = await Owner.findById(idOwner).populate("warehouses");
-                if (warehouses) {
-                    res.status(200).json({
-                        message: "View warehouse data successfully",
-                        warehouses: warehouses,
-                    });
-                }
-                else {
-                    res
-                        .status(404)
-                        .json({ message: "View warehouse data failed" });
-                }
+            if (!idOwner) {
+                res.status(401).json({ message: "xem danh sách kho không thành công vì không phải là chủ kho" })
             }
             else {
-                res.status(401).json({ message: "xem danh sách kho không thành công vì không phải là chủ kho" })
+                const owner = await Owner.findById(idOwner).populate("warehouses");
+                const warehouse = owner.warehouses;
+                console.log(warehouse);
+
+                if(!warehouse){
+                    res.status(401).json({ message: "khong co kho hang"});
+                }
+                else {
+                    res.status(200).json(warehouse);
+                }
             }
         } catch (err) {
             res.status(500).json(err); //HTTP Request code
