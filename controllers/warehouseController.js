@@ -11,8 +11,11 @@ const WarehouseController = {
                 const newWarehouse = new Warehouse({
                     wareHouseName: req.body.wareHouseName,
                     address: req.body.address,
+                    capacity: req.body.capacity,
                     category: req.body.category,
                     monney: req.body.monney,
+                    status: req.body.status,
+                    description: req.body.description,
                     owner: idOwner
                 });
                 if (!req.body.wareHouseName) {
@@ -64,26 +67,37 @@ const WarehouseController = {
     // },
 
     getAnWarehouses: async (req, res) => {
+        let status = 500;
+        let data = null;
         try {
             const idOwner = req.query.id_owner;
             if (!idOwner) {
-                res.status(401).json({ message: "xem danh sách kho không thành công vì không phải là chủ kho" })
+                status = 401;
+                data = { message: "xem danh sách kho không thành công vì không phải là chủ kho" };
+                // res.status(401).json({ message: "xem danh sách kho không thành công vì không phải là chủ kho" })
             }
             else {
                 const owner = await Owner.findById(idOwner).populate("warehouses");
                 const warehouse = owner.warehouses;
-                console.log(warehouse);
+                console.log(owner);
 
-                if(!warehouse){
-                    res.status(401).json({ message: "khong co kho hang"});
+                if (!warehouse) {
+                    status = 401;
+                    data = { message: "khong co kho hang" };
+                    // res.status(401).json({ message: "khong co kho hang"});
                 }
                 else {
-                    res.status(200).json(warehouse);
+                    status = 200;
+                    data = owner;
+                    // res.status(200).json(owner);
                 }
             }
         } catch (err) {
-            res.status(500).json(err); //HTTP Request code
+            data = err;
+            // res.status(500).json(err); //HTTP Requestcode code
         }
+        res.status(status).json(data); //HTTP Request code
+
     },
 
     //UPDATE WAREHOUSE
