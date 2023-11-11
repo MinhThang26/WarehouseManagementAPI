@@ -11,8 +11,11 @@ const WarehouseController = {
                 const newWarehouse = new Warehouse({
                     wareHouseName: req.body.wareHouseName,
                     address: req.body.address,
+                    capacity: req.body.capacity,
                     category: req.body.category,
                     monney: req.body.monney,
+                    status: req.body.status,
+                    description: req.body.description,
                     owner: idOwner
                 });
                 if (!req.body.wareHouseName) {
