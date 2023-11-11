@@ -196,7 +196,7 @@ const OrderController = {
                 $or: [
                     { _id: req.query.id }
                 ]
-            })
+            }).populate("user").populate("owner").populate("warehouses");
             console.log(order);
             if (order) {
                 res.status(200).json({
