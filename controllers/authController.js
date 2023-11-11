@@ -292,15 +292,18 @@ const authController = {
   },
   logout: async (req, res) => {
     try {
-      const token = req.headers.authorization;
+      let token = req.headers.authorization;
 
-      if (token) {
-        const tokenAccess = token.split(" ")[1];
-        await Token.deleteOne({ token: tokenAccess });
-        res
-          .status(200)
-          .json({ success: true, message: "Signed out successfully" });
+      // Kiểm tra xem header Authorization có bắt đầu bằng "Bearer " hay không
+      if (token && token.startsWith("Bearer ")) {
+        // Nếu có, tách chữ "Bearer " ra khỏi token để lấy token chính
+        token = token.slice(7);
       }
+
+      await Token.deleteOne({ token: token });
+      res
+        .status(200)
+        .json({ success: true, message: "Signed out successfully" });
     } catch (error) {
       res.status(500).json(error);
     }
