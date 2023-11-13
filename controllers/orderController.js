@@ -12,6 +12,7 @@ const OrderController = {
                 const newOrder = new Order({
                     money: req.body.money,
                     owner: req.body.owner,
+                    name: req.body.name,
                     user: idUser,
                     warehouses: req.body.warehouses,
                     rentalTime: req.body.rentalTime
@@ -238,6 +239,6 @@ const OrderController = {
             res.status(500).json({ message: error.message });
         }
     }
-    
+
 };
 module.exports = OrderController;
