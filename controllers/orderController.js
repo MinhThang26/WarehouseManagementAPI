@@ -223,7 +223,7 @@ const OrderController = {
         try {
             const result = await Order.find({
                 $or: [
-                    { nameOrder: req.query.username },
+                    { name: req.query.name },
                 ]
             }).populate("user").populate("owner").populate("warehouses");
 
