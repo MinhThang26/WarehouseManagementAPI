@@ -142,7 +142,7 @@ const WarehouseController = {
     //List WAREHOUSE in user
     getAllWarehouseUser: async (req, res) => {
         try {
-            const warehouse = await Warehouse.find().populate({path: "category",select: "name"}).populate("owner");
+            const warehouse = await Warehouse.find().populate({ path: "category", select: "name" }).populate("owner");
             if (warehouse) {
                 res.status(200).json({
                     message: "View warehouse data successfully",
@@ -161,17 +161,25 @@ const WarehouseController = {
     //search
     searchWarehouse: async (req, res) => {
         try {
-            const result = await Owner.findOne({
+            const result = await Owner.find({
                 $or: [
                     { username: req.query.username },
                     // {warehouse: req.query.warehouse},
                 ]
-            })
+            }).populate({
+                path: "warehouses",
+                select: "wareHouseName",
+                populate: {
+                    path: "category",
+                    select: "name",
+                },
+            }).populate("orders");
+
             console.log(result);
             if (result) {
                 res.status(200).json({
                     message: "View warehouse data successfully",
-                    warehouse: warehouse,
+                    Owner: result,
                 });
             } else {
                 res
@@ -190,7 +198,7 @@ const WarehouseController = {
                 $or: [
                     { _id: req.query.id }
                 ]
-            }).populate({path: "category",select: "name"}).populate("owner");
+            }).populate({ path: "category", select: "name" }).populate("owner");
             console.log(warehouse);
             if (warehouse) {
                 res.status(200).json({
