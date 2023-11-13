@@ -154,8 +154,11 @@ const OrderController = {
                 res.status(401).json({ message: "xem danh sách đơn hàng không thành công vì không phải là chủ kho" })
             }
             else {
-                const owner = await Owner.findById(idOwner).populate("orders");
-                const order = owner.orders;
+                const order = await Order.find({
+                    $or: [
+                        { owner: req.query.id_owner }
+                    ]
+                }).populate("user").populate("owner").populate("warehouses");
                 console.log(order);
 
                 if (!order) {
@@ -176,8 +179,11 @@ const OrderController = {
                 res.status(401).json({ message: "xem danh sách đơn hàng không thành công vì không phải là khách hàng" })
             }
             else {
-                const user = await User.findById(idUser).populate("orders");
-                const order = user.orders;
+                const order = await Order.find({
+                    $or: [
+                        { user: req.query.id_user }
+                    ]
+                }).populate("user").populate("owner").populate("warehouses");
                 console.log(order);
                 if (!order) {
                     res.status(401).json({ message: "khong co don hang" });
