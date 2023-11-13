@@ -220,13 +220,12 @@ const OrderController = {
         }
     },
     searchOrder: async (req, res) => {
+        let searchOptions = {}
+        if (req.query.name != null && req.query.name !== '') {
+            searchOptions.name = new RegExp(req.query.name, 'i')
+        }
         try {
-            const result = await Order.find({
-                $regex: [
-                    { name: req.query.name },
-                ]
-            }).populate("user").populate("owner").populate("warehouses");
-
+            const result = await Order.find(searchOptions);
             console.log(result);
             if (result) {
                 res.status(200).json({

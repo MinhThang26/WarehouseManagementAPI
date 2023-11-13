@@ -77,11 +77,12 @@ const WarehouseController = {
                 // res.status(401).json({ message: "xem danh sách kho không thành công vì không phải là chủ kho" })
             }
             else {
-                    const warehouse = await Warehouse.find({
-                        $or: [
-                            { owner: req.query.id_owner }
-                        ]}
-                    ).populate({path: "category",select: "name"}).populate("owner");
+                const warehouse = await Warehouse.find({
+                    $or: [
+                        { owner: req.query.id_owner }
+                    ]
+                }
+                ).populate({ path: "category", select: "name" }).populate("owner");
                 console.log(warehouse);
                 if (!warehouse) {
                     status = 401;
@@ -166,22 +167,21 @@ const WarehouseController = {
             const result = await Owner.find({
                 $regex: [
                     { username: req.query.username },
-                    // {warehouse: req.query.warehouse},
                 ]
-            }).populate({
-                path: "warehouses",
-                select: "wareHouseName",
-                populate: {
-                    path: "category",
-                    select: "name",
-                },
             }).populate("orders");
 
+            // const category1 = await WarehouseCategory.find({
+            //     $regex: [
+            //         { name: req.query.name },
+            //     ]
+            // }).populate("warehouses");
+
             console.log(result);
-            if (result) {
+            if (result && category1) {
                 res.status(200).json({
                     message: "View warehouse data successfully",
                     Owner: result,
+                    Category: category1,
                 });
             } else {
                 res
