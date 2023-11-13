@@ -164,7 +164,7 @@ const WarehouseController = {
     searchWarehouse: async (req, res) => {
         try {
             const result = await Owner.find({
-                $or: [
+                $regex: [
                     { username: req.query.username },
                     // {warehouse: req.query.warehouse},
                 ]
