@@ -222,7 +222,7 @@ const OrderController = {
     searchOrder: async (req, res) => {
         try {
             const result = await Order.find({
-                $or: [
+                $regex: [
                     { name: req.query.name },
                 ]
             }).populate("user").populate("owner").populate("warehouses");
