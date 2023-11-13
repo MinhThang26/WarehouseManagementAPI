@@ -18,38 +18,36 @@ const WarehouseController = {
                     description: req.body.description,
                     owner: idOwner
                 });
-                if(!req.body.wareHouseName){
-                    res.status(401).json({message: "Không được bỏ trống tên kho hàng "});
+                if (!req.body.wareHouseName) {
+                    res.status(401).json({ message: "Không được bỏ trống tên kho hàng " });
                 }
-                else if(!req.body.address){
-                    res.status(401).json({message: "Không được bỏ trống địa chỉ kho hàng "});
+                else if (!req.body.address) {
+                    res.status(401).json({ message: "Không được bỏ trống địa chỉ kho hàng " });
                 }
-                else if(!req.body.category){
-                    res.status(401).json({message: "Không được bỏ trống danh mục kho"});
+                else if (!req.body.category) {
+                    res.status(401).json({ message: "Không được bỏ trống danh mục kho" });
                 }
                 else if (!req.body.monney) {
-                    res.status(401).json({message: "Không được bỏ trống giá tiền kho hàng "});
+                    res.status(401).json({ message: "Không được bỏ trống giá tiền kho hàng " });
                 }
-                else if(!idOwner){
-                    res.status(401).json({message: "Không phải chủ kho"});
+                else if (!idOwner) {
+                    res.status(401).json({ message: "Không phải chủ kho" });
                 }
-                else
-                {
-                const saveWarehouse = await newWarehouse.save();
-                res.status(200).json(saveWarehouse);
-                
-                if (idOwner) {
-                    const owner = Owner.findById(idOwner);
-                    await owner.updateOne({ $push: { warehouses: saveWarehouse._id } });
-                }
-                if (req.body.category) {
-                    const category = WarehouseCategory.findById(req.body.category);
-                    await category.updateOne({ $push: { warehouses: saveWarehouse._id } });
-                }   
+                else {
+                    const saveWarehouse = await newWarehouse.save();
+                    res.status(200).json(saveWarehouse);
+
+                    if (idOwner) {
+                        const owner = Owner.findById(idOwner);
+                        await owner.updateOne({ $push: { warehouses: saveWarehouse._id } });
+                    }
+                    if (req.body.category) {
+                        const category = WarehouseCategory.findById(req.body.category);
+                        await category.updateOne({ $push: { warehouses: saveWarehouse._id } });
+                    }
                 }
             }
-            else 
-            {
+            else {
                 res.status(404).json({ message: "thêm không thành công do không phải là chủ kho" });
             }
         }
@@ -69,26 +67,37 @@ const WarehouseController = {
     // },
 
     getAnWarehouses: async (req, res) => {
+        let status = 500;
+        let data = null;
         try {
             const idOwner = req.query.id_owner;
             if (!idOwner) {
-                res.status(401).json({ message: "xem danh sách kho không thành công vì không phải là chủ kho" })
+                status = 401;
+                data = { message: "xem danh sách kho không thành công vì không phải là chủ kho" };
+                // res.status(401).json({ message: "xem danh sách kho không thành công vì không phải là chủ kho" })
             }
             else {
                 const owner = await Owner.findById(idOwner).populate("warehouses");
                 const warehouse = owner.warehouses;
-                console.log(warehouse);
+                console.log(owner);
 
-                if(!warehouse){
-                    res.status(401).json({ message: "khong co kho hang"});
+                if (!warehouse) {
+                    status = 401;
+                    data = { message: "khong co kho hang" };
+                    // res.status(401).json({ message: "khong co kho hang"});
                 }
                 else {
-                    res.status(200).json(warehouse);
+                    status = 200;
+                    data = owner;
+                    // res.status(200).json(owner);
                 }
             }
         } catch (err) {
-            res.status(500).json(err); //HTTP Request code
+            data = err;
+            // res.status(500).json(err); //HTTP Requestcode code
         }
+        res.status(status).json(data); //HTTP Request code
+
     },
 
     //UPDATE WAREHOUSE
@@ -133,7 +142,7 @@ const WarehouseController = {
     //List WAREHOUSE in user
     getAllWarehouseUser: async (req, res) => {
         try {
-            const warehouse = await Warehouse.find();
+            const warehouse = await Warehouse.find().populate({path: "category",select: "name"}).populate("owner");
             if (warehouse) {
                 res.status(200).json({
                     message: "View warehouse data successfully",
@@ -181,7 +190,7 @@ const WarehouseController = {
                 $or: [
                     { _id: req.query.id }
                 ]
-            })
+            }).populate({path: "category",select: "name"}).populate("owner");
             console.log(warehouse);
             if (warehouse) {
                 res.status(200).json({
