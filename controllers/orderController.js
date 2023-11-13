@@ -219,23 +219,26 @@ const OrderController = {
             res.status(500).json({ message: error.message });
         }
     },
-    getNameBasedOnId: async (req, res) => {
+    searchOrder: async (req, res) => {
         try {
-            const { idWareHouse } = req.query.id_warehouse;
-            const { idOwner } = req.query.id_owner;
-            const { idUser } = req.query.id_user;
+            const result = await Order.find({
+                $or: [
+                    { name: req.query.name },
+                ]
+            }).populate("user").populate("owner").populate("warehouses");
 
-            const warehouse = await Warehouse.findOne(idWareHouse);
-            const owner = await Owner.findOne(idOwner);
-            const user = await User.findOne(idUser);
-            console.log(warehouse.wareHouseName);
-            console.log(owner.username);
-            console.log(user.username);
-
-            // if () {
-
-            // }
-        } catch {
+            console.log(result);
+            if (result) {
+                res.status(200).json({
+                    message: "View Order data successfully",
+                    Order: result,
+                });
+            } else {
+                res
+                    .status(404)
+                    .json({ message: "View Order data failed" });
+            }
+        } catch (error) {
             res.status(500).json({ message: error.message });
         }
     }
