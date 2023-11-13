@@ -7,6 +7,11 @@ const orderSchema = mongoose.Schema(
             required: true,
             
         },
+        name:{
+            type: String,
+            require: true,
+            unique: true,
+        },
         owner: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Owner",
