@@ -14,4 +14,6 @@ router.get("/listOrderByUser",middlewareController.verifyToken,OrderController.g
 
 router.get("/getAOrder",middlewareController.verifyToken,OrderController.getAOrder);
 
+router.get("/searchOrder", middlewareController.verifyToken,OrderController.searchOrder);
+
 module.exports = router;

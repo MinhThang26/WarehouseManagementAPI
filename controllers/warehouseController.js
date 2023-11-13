@@ -11,8 +11,11 @@ const WarehouseController = {
                 const newWarehouse = new Warehouse({
                     wareHouseName: req.body.wareHouseName,
                     address: req.body.address,
+                    capacity: req.body.capacity,
                     category: req.body.category,
                     monney: req.body.monney,
+                    status: req.body.status,
+                    description: req.body.description,
                     owner: idOwner
                 });
                 if (!req.body.wareHouseName) {
@@ -63,27 +66,41 @@ const WarehouseController = {
     //     }
     // },
 
-    getAnWarehouses: async (req, res) => {
+    getAWarehouses: async (req, res) => {
+        let status = 500;
+        let data = null;
         try {
             const idOwner = req.query.id_owner;
             if (!idOwner) {
-                res.status(401).json({ message: "xem danh sách kho không thành công vì không phải là chủ kho" })
+                status = 401;
+                data = { message: "xem danh sách kho không thành công vì không phải là chủ kho" };
+                // res.status(401).json({ message: "xem danh sách kho không thành công vì không phải là chủ kho" })
             }
             else {
-                const owner = await Owner.findById(idOwner).populate("warehouses");
-                const warehouse = owner.warehouses;
+                const warehouse = await Warehouse.find({
+                    $or: [
+                        { owner: req.query.id_owner }
+                    ]
+                }
+                ).populate({ path: "category", select: "name" }).populate("owner");
                 console.log(warehouse);
-
-                if(!warehouse){
-                    res.status(401).json({ message: "khong co kho hang"});
+                if (!warehouse) {
+                    status = 401;
+                    data = { message: "khong co kho hang" };
+                    // res.status(401).json({ message: "khong co kho hang"});
                 }
                 else {
-                    res.status(200).json(warehouse);
+                    status = 200;
+                    data = warehouse;
+                    // res.status(200).json(owner);
                 }
             }
         } catch (err) {
-            res.status(500).json(err); //HTTP Request code
+            data = err;
+            // res.status(500).json(err); //HTTP Requestcode code
         }
+        res.status(status).json(data); //HTTP Request code
+
     },
 
     //UPDATE WAREHOUSE
@@ -128,7 +145,7 @@ const WarehouseController = {
     //List WAREHOUSE in user
     getAllWarehouseUser: async (req, res) => {
         try {
-            const warehouse = await Warehouse.find();
+            const warehouse = await Warehouse.find().populate({ path: "category", select: "name" }).populate("owner");
             if (warehouse) {
                 res.status(200).json({
                     message: "View warehouse data successfully",
@@ -147,17 +164,24 @@ const WarehouseController = {
     //search
     searchWarehouse: async (req, res) => {
         try {
-            const result = await Owner.findOne({
-                $or: [
+            const result = await Owner.find({
+                $regex: [
                     { username: req.query.username },
-                    // {warehouse: req.query.warehouse},
                 ]
-            })
+            }).populate("orders");
+
+            // const category1 = await WarehouseCategory.find({
+            //     $regex: [
+            //         { name: req.query.name },
+            //     ]
+            // }).populate("warehouses");
+
             console.log(result);
-            if (result) {
+            if (result && category1) {
                 res.status(200).json({
                     message: "View warehouse data successfully",
-                    warehouse: warehouse,
+                    Owner: result,
+                    Category: category1,
                 });
             } else {
                 res
@@ -176,7 +200,7 @@ const WarehouseController = {
                 $or: [
                     { _id: req.query.id }
                 ]
-            })
+            }).populate({ path: "category", select: "name" }).populate("owner");
             console.log(warehouse);
             if (warehouse) {
                 res.status(200).json({
