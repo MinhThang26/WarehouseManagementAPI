@@ -11,5 +11,10 @@ router.get(
   middlewareController.verifyToken,
   blogController.getBlogById
 );
+router.get(
+  "/list-by-owner",
+  middlewareController.verifyToken,
+  blogController.getListBlogByOwner
+);
 
 module.exports = router;

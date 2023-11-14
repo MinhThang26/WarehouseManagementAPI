@@ -95,6 +95,40 @@ const blogController = {
     }
     res.status(status).json(data);
   },
+  getListBlogByOwner: async (req, res) => {
+    let status = 500;
+    let data = null;
+    try {
+      const idOwner = req.query.id;
+      if (!idOwner) {
+        status = 404;
+        data = {
+          success: false,
+          message: "Read list blog by owner failed due to lack idOwner",
+        };
+      } else {
+        const blogs = await Blog.find({ owner: idOwner });
+
+        if (blogs.length == 0) {
+          status = 400;
+          data = {
+            success: false,
+            message: "Read list blog by owner failed, blogs not found",
+          };
+        } else {
+          status = 200;
+          data = {
+            success: true,
+            message: "Read list blog by owner successfully",
+            data: blogs,
+          };
+        }
+      }
+    } catch (error) {
+      data = error;
+    }
+    res.status(status).json(data);
+  },
 };
 
 module.exports = blogController;
