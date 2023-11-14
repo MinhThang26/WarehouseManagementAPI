@@ -2,6 +2,18 @@ const uploadCloud = require("../config/cloudinaryConfig");
 const Blog = require("../models/Blog");
 const Owner = require("../models/Owner");
 const blogController = {
+  uploadImages: (req) => {
+    return new Promise((resolve, reject) => {
+      uploadCloud.array("images")(req, null, (error) => {
+        if (error) {
+          console.error("Có lỗi khi tải lên ảnh:", error);
+          reject("Có lỗi khi tải lên ảnh");
+        } else {
+          resolve(req.files);
+        }
+      });
+    });
+  },
   createBlog: async (req, res) => {
     let status = 500;
     let data = null;
@@ -50,17 +62,38 @@ const blogController = {
     }
     res.status(status).json(data);
   },
-  uploadImages: (req) => {
-    return new Promise((resolve, reject) => {
-      uploadCloud.array("images")(req, null, (error) => {
-        if (error) {
-          console.error("Có lỗi khi tải lên ảnh:", error);
-          reject("Có lỗi khi tải lên ảnh");
+  getBlogById: async (req, res) => {
+    let status = 500;
+    let data = null;
+    try {
+      const idBlog = req.query.id;
+      if (!idBlog) {
+        status = 404;
+        data = {
+          success: false,
+          message: "Read blog failed due to lack idBlog",
+        };
+      } else {
+        const blog = await Blog.findById(idBlog);
+        if (!blog) {
+          status = 404;
+          data = {
+            success: false,
+            message: "Read blog failed, blog not found",
+          };
         } else {
-          resolve(req.files);
+          status = 200;
+          data = {
+            success: true,
+            message: "Read blog successfully",
+            data: blog,
+          };
         }
-      });
-    });
+      }
+    } catch (error) {
+      data = error;
+    }
+    res.status(status).json(data);
   },
 };
 
