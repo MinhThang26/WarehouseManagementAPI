@@ -53,6 +53,12 @@ const ownerSchema = mongoose.Schema(
       default:
         "https://res.cloudinary.com/dborrd4h5/image/upload/v1698906766/WarehouseManagement/avatars/trend-avatar-1_xdqcvy.jpg",
     },
+    blogs: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Blog",
+      },
+    ],
   },
   { timestamps: true }
 );
