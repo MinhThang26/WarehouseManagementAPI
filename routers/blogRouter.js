@@ -6,5 +6,10 @@ router.post(
   middlewareController.verifyTokenIsOwner,
   blogController.createBlog
 );
+router.get(
+  "/get-by-id",
+  middlewareController.verifyToken,
+  blogController.getBlogById
+);
 
 module.exports = router;
