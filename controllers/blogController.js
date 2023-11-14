@@ -74,7 +74,9 @@ const blogController = {
           message: "Read blog failed due to lack idBlog",
         };
       } else {
-        const blog = await Blog.findById(idBlog);
+        const blog = await Blog.findById(idBlog)
+          .populate("owner")
+          .populate("warehouse");
         if (!blog) {
           status = 404;
           data = {
@@ -107,7 +109,9 @@ const blogController = {
           message: "Read list blog by owner failed due to lack idOwner",
         };
       } else {
-        const blogs = await Blog.find({ owner: idOwner });
+        const blogs = await Blog.find({ owner: idOwner })
+          .populate("owner")
+          .populate("warehouse");
 
         if (blogs.length == 0) {
           status = 400;
