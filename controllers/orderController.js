@@ -225,7 +225,7 @@ const OrderController = {
             searchOptions.name = new RegExp(req.query.name, 'i')
         }
         try {
-            const result = await Order.find(searchOptions);
+            const result = await Order.find(searchOptions).populate("owner").populate("user").populate("warehouses");
             console.log(result);
             if (result) {
                 res.status(200).json({

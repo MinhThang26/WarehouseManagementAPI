@@ -7,7 +7,7 @@ const Token = require("../models/Token");
 const adminController = require("./adminController");
 
 const authController = {
-  isUsernameTaken: async (username) => {
+  fisUsernameTaken: async (username) => {
     const user = await User.findOne({ username });
     const owner = await Owner.findOne({ username });
     const admin = await Admin.findOne({ username });
