@@ -1,6 +1,7 @@
 const uploadCloud = require("../config/cloudinaryConfig");
 const Blog = require("../models/Blog");
 const Owner = require("../models/Owner");
+const Warehouse = require("../models/Warehouse");
 const blogController = {
   uploadImages: (req) => {
     return new Promise((resolve, reject) => {
@@ -130,6 +131,68 @@ const blogController = {
       }
     } catch (error) {
       data = error;
+    }
+    res.status(status).json(data);
+  },
+  deleteBlog: async (req, res) => {
+    let status = 500;
+    let data = null;
+    try {
+      const idOwner = req.query.id_owner;
+      if (idOwner) {
+        const { id } = req.params;
+        const blog = await Blog.findByIdAndDelete(id);
+        const blog1 = await Owner.updateMany({ $pull: { blogs: id } });
+        //const blog2 = await Warehouse.updateOne({ $pull: { warehouses: id } });
+        console.log(id);
+        console.log(blog1);
+        if (blog && blog1) {
+          status = 200;
+          data = {
+            success: true,
+            message: "Delete blog successfully!",
+          };
+        } else {
+          status = 404;
+          data = {
+            success: false,
+            message: `cannot find any blog`,
+          }
+        }
+      }
+      else {
+        status = 401;
+        data = {
+          success: false,
+          message: "Xoa blog không thành công vì không phải là chủ kho"
+        };
+      }
+    } catch (error) {
+      data = error;
+    }
+    res.status(status).json(data);
+  },
+  getListBlogByAll: async (req, res) => {
+    let status = 500;
+    let data = null;
+    try {
+      const blog = await Blog.find().populate("warehouse").populate("owner");
+      if (blog) {
+        status = 200;
+        data = {
+          success: true,
+          message: "View blog data successfully",
+          blog: blog,
+        }
+      } else {
+        status = 404;
+        data = {
+          success: false,
+          message: "View blog data failed",
+        }
+      }
+    } catch (error) {
+      data = error
     }
     res.status(status).json(data);
   },
