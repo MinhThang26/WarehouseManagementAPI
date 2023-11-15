@@ -11,7 +11,7 @@ const storage = new CloudinaryStorage({
   cloudinary,
   allowedFormats: ["jpg", "png"],
   params: {
-    folder: "WarehouseManagement/avatars",
+    folder: "WarehouseManagement/images",
   },
 });
 const uploadCloud = multer({ storage });

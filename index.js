@@ -29,12 +29,14 @@ mongoose.connection.once("open", () => {
 
 const authRouter = require("./routers/authRouter");
 const warehouseRouter = require("./routers/warehouseRouter");
-const adminController = require("./routers/adminRouter");
+const adminRouter = require("./routers/adminRouter");
 const orderController = require("./routers/orderRouter");
+const blogRouter = require("./routers/blogRouter");
 
 app.use("/v1/auth", authRouter);
 app.use("/v1/warehouse", warehouseRouter);
-app.use("/v1/admin", adminController);
-app.use("/v1/order",orderController);
+app.use("/v1/admin", adminRouter);
+app.use("/v1/order", orderController);
+app.use("/v1/blog", blogRouter);
 
 module.exports = app;

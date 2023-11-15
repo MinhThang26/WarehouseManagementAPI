@@ -4,8 +4,11 @@ const _ = require("lodash");
 
 const adminController = {
   checkAccountById: async (id) => {
-    const user = await User.findById(id);
-    const owner = await Owner.findById(id);
+    const user = await User.findById(id).populate("orders");
+    const owner = await Owner.findById(id)
+      .populate("warehouses")
+      .populate("blogs")
+      .populate("orders");
     if (user) {
       return user;
     } else if (owner) {
