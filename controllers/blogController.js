@@ -1,6 +1,7 @@
 const uploadCloud = require("../config/cloudinaryConfig");
 const Blog = require("../models/Blog");
 const Owner = require("../models/Owner");
+const Warehouse = require("../models/Warehouse");
 const blogController = {
   uploadImages: (req) => {
     return new Promise((resolve, reject) => {
