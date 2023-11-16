@@ -16,5 +16,10 @@ router.get(
   middlewareController.verifyToken,
   blogController.getListBlogByOwner
 );
+router.put(
+  "/update",
+  middlewareController.verifyTokenIsOwner,
+  blogController.updateBlog
+);
 
 module.exports = router;

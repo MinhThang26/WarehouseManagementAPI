@@ -9,59 +9,63 @@ const blogController = {
           console.error("Có lỗi khi tải lên ảnh:", error);
           reject("Có lỗi khi tải lên ảnh");
         } else {
+          if (req.files == undefined) {
+            req.files = [];
+          }
           resolve(req.files);
         }
       });
     });
   },
-  createBlog: async (req, res) => {
-    let status = 500;
-    let data = null;
-    try {
-      const id = req.user.id;
-      const owner = await Owner.findById(id);
-      const warehouse = req.query.warehouse;
+  // createBlog: async (req, res) => {
+  //   let status = 500;
+  //   let data = null;
+  //   try {
+  //     const id = req.user.id;
+  //     const owner = await Owner.findById(id);
+  //     const warehouse = req.query.warehouse;
 
-      if (warehouse) {
-        if (owner.warehouses.includes(warehouse)) {
-          const images = await blogController.uploadImages(req);
-          const imagePath = images.map((image) => image.path);
-          // console.log(imagePath);
+  //     if (warehouse) {
+  //       if (owner.warehouses.includes(warehouse)) {
+  //         const images = await blogController.uploadImages(req);
+  //         const imagePath = images.map((image) => image.path);
+  //         // console.log(imagePath);
 
-          const newBlog = await new Blog({
-            owner: id,
-            warehouse: warehouse,
-            description: req.body.description,
-            images: imagePath,
-          });
-          const saveBlog = await newBlog.save();
-          await owner.updateOne({ $push: { blogs: saveBlog._id } });
-          status = 200;
-          data = {
-            success: true,
-            message: "Create a successful blog",
-            data: saveBlog,
-          };
-        } else {
-          status = 400;
-          data = {
-            success: false,
-            message: "This warehouse does not belong to this account owner",
-          };
-        }
-      } else {
-        status = 400;
-        data = {
-          success: false,
-          message: "Blog creation failed due to lack warehouse",
-        };
-      }
-    } catch (error) {
-      console.log(error);
-      data = error;
-    }
-    res.status(status).json(data);
-  },
+  //         const newBlog = await new Blog({
+  //           owner: id,
+  //           warehouse: warehouse,
+  //           description: req.body.description,
+  //           images: imagePath,
+  //         });
+  //         const saveBlog = await newBlog.save();
+  //         await owner.updateOne({ $push: { blogs: saveBlog._id } });
+  //         status = 200;
+  //         data = {
+  //           success: true,
+  //           message: "Create a successful blog",
+  //           data: saveBlog,
+  //         };
+  //       } else {
+  //         status = 400;
+  //         data = {
+  //           success: false,
+  //           message: "This warehouse does not belong to this account owner",
+  //         };
+  //       }
+  //     } else {
+  //       status = 400;
+  //       data = {
+  //         success: false,
+  //         message: "Blog creation failed due to lack warehouse",
+  //       };
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //     data = error;
+  //   }
+  //   res.status(status).json(data);
+  // },
+
   getBlogById: async (req, res) => {
     let status = 500;
     let data = null;
@@ -132,6 +136,114 @@ const blogController = {
       data = error;
     }
     res.status(status).json(data);
+  },
+  createBlog: async (req, res) => {
+    let status = 500;
+    let data = null;
+    try {
+      const id = req.user.id;
+      const owner = await Owner.findById(id);
+      const images = await blogController.uploadImages(req);
+      const imagePath = images.map((image) => image.path);
+      const checkData = blogController.checkDataBlog(
+        req.body.description,
+        imagePath
+      );
+
+      if (checkData) {
+        status = 400;
+        data = {
+          success: false,
+          message: "Create a blog failed, must have images or description",
+        };
+      } else {
+        const newBlog = await new Blog({
+          owner: id,
+          description: req.body.description,
+          images: imagePath,
+        });
+        const saveBlog = await newBlog.save();
+        await owner.updateOne({ $push: { blogs: saveBlog._id } });
+        status = 200;
+        data = {
+          success: true,
+          message: "Create a successful blog",
+          data: saveBlog,
+        };
+      }
+    } catch (error) {
+      console.log(error);
+      data = error;
+    }
+    res.status(status).json(data);
+  },
+  updateBlog: async (req, res) => {
+    let status = 500;
+    let data = null;
+    try {
+      const idOwner = req.user.id;
+      const idBlog = req.query.id;
+
+      if (idBlog) {
+        const blog = await Blog.findById(idBlog);
+        if (!blog) {
+          data = {
+            success: false,
+            message: "Blog update failed, blog not found",
+          };
+        } else {
+          if (idOwner != blog.owner) {
+            data = {
+              success: false,
+              message:
+                "Blog update failed, this blog does not belong to this account owner",
+            };
+          } else {
+            const images = await blogController.uploadImages(req);
+            let imagePath = images.map((image) => image.path);
+            let description = req.body.description;
+
+            if (imagePath.length == 0) {
+              imagePath = blog.images;
+            }
+            if (description == "" || description == undefined) {
+              description = blog.description;
+            }
+            await blog.updateOne({
+              description: description,
+              images: imagePath,
+            });
+
+            status = 200;
+            data = {
+              success: true,
+              message: "Update blog a successful blog",
+            };
+          }
+        }
+      } else {
+        data = {
+          success: false,
+          message: "Blog update failed due to lack id blog",
+        };
+      }
+    } catch (error) {
+      console.log(error);
+      data = error;
+    }
+    res.status(status).json(data);
+  },
+  checkDataBlog: (description, images) => {
+    let response;
+    const checkNullDescription =
+      description == undefined || description == "" || description.length == 0;
+    const checkNullImages =
+      images == undefined || images == "" || images.length == 0;
+    if (checkNullDescription && checkNullImages) {
+      response = "Update a blog failed, must have images or description";
+    }
+    // console.log(description);
+    return response;
   },
 };
 
