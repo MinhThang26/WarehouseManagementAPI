@@ -126,7 +126,7 @@ const WarehouseController = {
             if (idOwner) {
                 const { id } = req.params;
                 const warehouses = await Warehouse.findByIdAndDelete(id);
-                const warehouses1 = await Owner.updateOne({ $pull: { warehouses: id } });
+                const warehouses1 = await Owner.updateMany({ $pull: { warehouses: id } });
                 if (warehouses && warehouses1) {
                     res.status(200).json({ message: "Delete warehouse successfully!" });
                 } else {
