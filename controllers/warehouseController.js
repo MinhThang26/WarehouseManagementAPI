@@ -12,9 +12,11 @@ const WarehouseController = {
                     wareHouseName: req.body.wareHouseName,
                     address: req.body.address,
                     capacity: req.body.capacity,
+                    currentCapacity: req.body.currentCapacity,
                     category: req.body.category,
                     monney: req.body.monney,
                     status: req.body.status,
+                    imageWarehouse: req.body.imageWarehouse,
                     description: req.body.description,
                     owner: idOwner
                 });
@@ -24,6 +26,10 @@ const WarehouseController = {
                 else if (!req.body.address) {
                     res.status(401).json({ message: "Không được bỏ trống địa chỉ kho hàng " });
                 }
+                else if (!req.body.capacity){
+                    res.status(401).json({ message: "Không được bỏ trống dien tich kho hàng " });
+                }
+
                 else if (!req.body.category) {
                     res.status(401).json({ message: "Không được bỏ trống danh mục kho" });
                 }
@@ -115,7 +121,7 @@ const WarehouseController = {
                 res.status(404).json({ message: "View warehouse data failed" });
             }
         } catch (err) {
-            res.status(500).json({ message: error.message });
+            res.status(500).json({ message: err.message });
         }
     },
 

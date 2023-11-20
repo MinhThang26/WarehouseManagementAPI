@@ -16,15 +16,19 @@ const wareHouseSchema = mongoose.Schema(
       required: true,
     },
     capacity: {
-      type: String,
+      type: Number,
+      required: true,
     },
-
+    currentCapacity:{
+      type: Number,
+    },
     monney: {
       type: Number,
       required: true,
     },
     status: {
-      type: String,
+      type: Boolean,
+      default: true,
     },
     description: {
       type: String,
@@ -34,6 +38,10 @@ const wareHouseSchema = mongoose.Schema(
       ref: "Owner",
       required: true,
     },
+    imageWarehouse:{
+      type: String,
+      require: true,
+    }
   },
   { timestamps: true }
 );
