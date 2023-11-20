@@ -15,7 +15,6 @@ const WarehouseController = {
                     currentCapacity: req.body.currentCapacity,
                     category: req.body.category,
                     monney: req.body.monney,
-                    status: req.body.status,
                     imageWarehouse: req.body.imageWarehouse,
                     description: req.body.description,
                     owner: idOwner
