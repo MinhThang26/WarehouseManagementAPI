@@ -26,14 +26,16 @@ const WarehouseController = {
                     res.status(401).json({ message: "Không được bỏ trống địa chỉ kho hàng " });
                 }
                 else if (!req.body.capacity){
-                    res.status(401).json({ message: "Không được bỏ trống dien tich kho hàng " });
+                    res.status(401).json({ message: "Không được bỏ trống diện tích kho hàng " });
                 }
-
                 else if (!req.body.category) {
                     res.status(401).json({ message: "Không được bỏ trống danh mục kho" });
                 }
                 else if (!req.body.monney) {
                     res.status(401).json({ message: "Không được bỏ trống giá tiền kho hàng " });
+                }
+                else if(!req.body.imageWarehouse){
+                    res.status(401).json({ message: "Không được bỏ trống hình ảnh kho hàng " });
                 }
                 else if (!idOwner) {
                     res.status(401).json({ message: "Không phải chủ kho" });
