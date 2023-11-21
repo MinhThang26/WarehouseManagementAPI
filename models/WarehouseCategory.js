@@ -13,6 +13,9 @@ const WarehouseCategorySchema = mongoose.Schema(
         ref: "Warehouse",
       },
     ],
+    acreage: {
+      type: String,
+    }
   },
   { timestamps: true }
 );
