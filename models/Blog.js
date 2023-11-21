@@ -10,7 +10,6 @@ const blogSchema = mongoose.Schema(
     warehouse: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Warehouse",
-      required: true,
     },
     description: {
       type: String,

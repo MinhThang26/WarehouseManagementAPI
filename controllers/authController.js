@@ -310,23 +310,49 @@ const authController = {
   },
   updateAccount: async (req, res) => {
     try {
+      let username = req.body.username;
+      let email = req.body.email;
+      let phone = req.body.phone;
+      let address = req.body.address;
+      const avatar = req.file;
       const account = await adminController.checkAccountById(req.user.id);
 
+      if (email == undefined || email == "") {
+        email = "0123456789";
+      }
+      if (email.length < 10) {
+        res.status(400).json({
+          success: false,
+          message: "Email cannot be less than 10 characters",
+        });
+        return;
+      }
+
       const property = await authController.isUsernameOrEmailOrPhoneTaken(
-        req.body.username,
-        req.body.email,
-        req.body.phone
+        username,
+        email,
+        phone
       );
-      const avatar = req.file;
+
+      if (email == "0123456789") {
+        email = account.email;
+      }
+
       if (account) {
         if (!property) {
+          if (address == "" || address == undefined) {
+            address = account.address;
+          }
+          if (phone == "" || phone == undefined) {
+            phone = account.phone;
+          }
           if (avatar) {
             await account.updateOne({
               $set: {
-                email: req.body.email,
-                address: req.body.address,
+                email: email,
+                address: address,
                 avatar: avatar.path,
-                phone: req.body.phone,
+                phone: phone,
               },
             });
             res
@@ -335,9 +361,9 @@ const authController = {
           } else {
             await account.updateOne({
               $set: {
-                email: req.body.email,
-                address: req.body.address,
-                phone: req.body.phone,
+                email: email,
+                address: address,
+                phone: phone,
               },
             });
             res
@@ -354,6 +380,7 @@ const authController = {
         res.status(404).json({ success: false, message: "Account not found" });
       }
     } catch (error) {
+      console.log(error);
       res.status(500).json(error);
     }
   },
