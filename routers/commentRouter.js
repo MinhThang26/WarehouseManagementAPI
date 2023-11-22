@@ -17,5 +17,10 @@ router.delete(
   middlewareController.verifyToken,
   commentController.deleteComment
 );
+router.put(
+  "/update",
+  middlewareController.verifyToken,
+  commentController.updateComment
+);
 
 module.exports = router;

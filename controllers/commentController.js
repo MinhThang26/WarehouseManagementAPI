@@ -189,5 +189,79 @@ const commentController = {
     }
     res.status(status).json(data);
   },
+  updateComment: async (req, res) => {
+    let status = 500;
+    let data = null;
+    try {
+      const idBlog = req.query.idBlog;
+      const idComment = req.query.idComment;
+      const account = await adminController.checkAccountById(req.user.id);
+      let content = req.body.content;
+
+      let comments = account.comments;
+
+      const commentArray = comments.map((comment) => comment._id);
+      if (!idBlog) {
+        status = 404;
+        data = {
+          success: false,
+          message: "Update comment failed due to lack idBlog",
+        };
+      } else {
+        const blog = await Blog.findById(idBlog);
+        if (!blog) {
+          status = 404;
+          data = {
+            success: false,
+            message: "Update comment failed, blog not found",
+          };
+        } else {
+          if (!idComment) {
+            status = 404;
+            data = {
+              success: false,
+              message: "Update comment failed due to lack idComment",
+            };
+          } else {
+            const comment = await Comment.findById(idComment);
+            if (!comment) {
+              status = 404;
+              data = {
+                success: false,
+                message: "Update comment failed, comment not found",
+              };
+            } else {
+              if (content == undefined || content == "") {
+                content = comment.content;
+              }
+              console.log(content);
+              if (commentArray.some((id) => id.equals(idComment))) {
+                await comment.updateOne({
+                  $set: {
+                    content: content,
+                  },
+                });
+                status = 200;
+                data = {
+                  success: true,
+                  message: "Updated comment successfully",
+                };
+              } else {
+                status = 403;
+                data = {
+                  success: false,
+                  message: "You do not have permission to update this comment",
+                };
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {
+      data = error;
+      console.log(data);
+    }
+    res.status(status).json(data);
+  },
 };
 module.exports = commentController;
