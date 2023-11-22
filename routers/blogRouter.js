@@ -16,5 +16,20 @@ router.get(
   middlewareController.verifyToken,
   blogController.getListBlogByOwner
 );
+router.delete(
+  "/delete-blog/:id",
+  middlewareController.verifyTokenIsOwner,
+  blogController.deleteBlog
+);
+router.get(
+  "/list-by-blog",
+  middlewareController.verifyToken,
+  blogController.getListBlogByAll
+);
+router.put(
+  "/update",
+  middlewareController.verifyTokenIsOwner,
+  blogController.updateBlog
+);
 
 module.exports = router;
