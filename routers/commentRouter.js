@@ -12,5 +12,10 @@ router.get(
   middlewareController.verifyToken,
   commentController.getListComment
 );
+router.delete(
+  "/delete",
+  middlewareController.verifyToken,
+  commentController.deleteComment
+);
 
 module.exports = router;

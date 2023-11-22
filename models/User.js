@@ -50,6 +50,12 @@ const userSchema = mongoose.Schema(
         ref: "Comment",
       },
     ],
+    blogs: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Blog",
+      },
+    ],
   },
   { timestamps: true }
 );
