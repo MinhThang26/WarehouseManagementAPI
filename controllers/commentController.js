@@ -63,5 +63,39 @@ const commentController = {
     }
     res.status(status).json(data);
   },
+  getListComment: async (req, res) => {
+    let status = 500;
+    let data = null;
+    try {
+      const idBlog = req.query.idBlog;
+      if (!idBlog) {
+        status = 404;
+        data = {
+          success: false,
+          message: "Read comment failed due to lack idBlog",
+        };
+      } else {
+        const blog = await Blog.findById(idBlog);
+        if (!blog) {
+          status = 404;
+          data = {
+            success: false,
+            message: "Read comment failed, blog not found",
+          };
+        } else {
+          const comments = await Comment.find({ blog: idBlog });
+          status = 200;
+          data = {
+            success: true,
+            message: "Read comment successfully",
+            data: comments,
+          };
+        }
+      }
+    } catch (error) {
+      data = error;
+    }
+    res.status(status).json(data);
+  },
 };
 module.exports = commentController;

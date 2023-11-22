@@ -7,5 +7,10 @@ router.post(
   middlewareController.verifyToken,
   commentController.createComment
 );
+router.get(
+  "/list-by-blog",
+  middlewareController.verifyToken,
+  commentController.getListComment
+);
 
 module.exports = router;
