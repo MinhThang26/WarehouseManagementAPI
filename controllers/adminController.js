@@ -258,6 +258,15 @@ const adminController = {
       res.status(500).json(error);
     }
   },
+  checkAccountByComment: async (comment) => {
+    const user = await User.findOne({ comments: comment });
+    const owner = await Owner.findOne({ comments: comment });
+    if (user) {
+      return user;
+    } else if (owner) {
+      return owner;
+    }
+  },
 };
 
 module.exports = adminController;
