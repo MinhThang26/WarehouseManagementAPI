@@ -31,5 +31,15 @@ router.put(
   middlewareController.verifyTokenIsOwner,
   blogController.updateBlog
 );
+router.put(
+  "/likes/:bid",
+  middlewareController.verifyToken,
+  blogController.likeBlog
+);
+router.put(
+  "/dislikes/:bid",
+  middlewareController.verifyToken,
+  blogController.disLikeBlog
+);
 
 module.exports = router;
