@@ -2,6 +2,7 @@ const uploadCloud = require("../config/cloudinaryConfig");
 const Blog = require("../models/Blog");
 const Owner = require("../models/Owner");
 const Warehouse = require("../models/Warehouse");
+const Comment = require("../models/Comment");
 const blogController = {
   uploadImages: (req) => {
     return new Promise((resolve, reject) => {
@@ -156,10 +157,12 @@ const blogController = {
         const { id } = req.params;
         const blog = await Blog.findByIdAndDelete(id);
         const blog1 = await Owner.updateMany({ $pull: { blogs: id } });
-        //const blog2 = await Warehouse.updateOne({ $pull: { warehouses: id } });
+      
+        const blog2 = await Comment.findOne({blog: id});
+        await blog2.delete();
         console.log(id);
-        console.log(blog1);
-        if (blog && blog1) {
+        console.log(blog2);
+        if (blog && blog1 && blog2) {
           status = 200;
           data = {
             success: true,
@@ -182,6 +185,7 @@ const blogController = {
     } catch (error) {
       data = error;
     }
+    console.log(data)
     res.status(status).json(data);
   },
   getListBlogByAll: async (req, res) => {
