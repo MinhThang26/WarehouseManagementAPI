@@ -157,7 +157,6 @@ const blogController = {
         const { id } = req.params;
         const blog = await Blog.findByIdAndDelete(id);
         const blog1 = await Owner.updateMany({ $pull: { blogs: id } });
-      
         const blog2 = await Comment.findOne({blog: id});
         await blog2.delete();
         console.log(id);
