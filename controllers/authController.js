@@ -399,11 +399,19 @@ const authController = {
       }
       if (account) {
         const validPassword = await bcrypt.compare(
-          req.body.password,
+          req.body.currentPassword,
           account.password
         );
 
-        if (!validPassword) {
+        if (validPassword) {
+          if (req.body.currentPassword === req.body.password) {
+            res.status(400).json({
+              success: false,
+              message:
+                "The new password cannot be the same as the current password",
+            });
+            return;
+          }
           if (req.body.password === req.body.confirmPassword) {
             const salt = await bcrypt.genSalt(10);
             const hashed = await bcrypt.hash(req.body.password, salt);
@@ -425,7 +433,7 @@ const authController = {
         } else {
           res.status(400).json({
             success: false,
-            message: "The new password cannot be the same as the old password",
+            message: "Password is not valid",
           });
         }
       } else {

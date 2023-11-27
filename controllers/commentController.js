@@ -102,7 +102,6 @@ const commentController = {
     let status = 500;
     let data = null;
     try {
-      const idBlog = req.query.idBlog;
       const idComment = req.query.idComment;
       const account = await adminController.checkAccountById(req.user.id);
 
@@ -112,74 +111,54 @@ const commentController = {
       const commentArray = comments.map((comment) => comment._id);
       const blogArray = blogs.map((blog) => blog._id);
 
-      if (!idBlog) {
+      if (!idComment) {
         status = 404;
         data = {
           success: false,
-          message: "Delete comment failed due to lack idBlog",
+          message: "Delete comment failed due to lack idComment",
         };
       } else {
-        const blog = await Blog.findById(idBlog);
-        if (!blog) {
+        const comment = await Comment.findById(idComment);
+        if (!comment) {
           status = 404;
           data = {
             success: false,
-            message: "Delete comment failed, blog not found",
+            message: "Delete comment failed, comment not found",
           };
         } else {
-          if (!idComment) {
-            status = 404;
+          if (
+            blogArray.some((id) => id.equals(comment.blog)) ||
+            commentArray.some((id) => id.equals(idComment))
+          ) {
+            const blog = await Blog.findById(comment.blog);
+            const acByComment = await adminController.checkAccountByComment(
+              idComment
+            );
+
+            await comment.delete();
+            await blog.updateOne({
+              $pull: {
+                comments: idComment,
+              },
+            });
+
+            await acByComment.updateOne({
+              $pull: {
+                comments: idComment,
+              },
+            });
+
+            status = 200;
             data = {
-              success: false,
-              message: "Delete comment failed due to lack idComment",
+              success: true,
+              message: "Delete comment successfully",
             };
           } else {
-            const comment = await Comment.findById(idComment);
-            if (!comment) {
-              status = 404;
-              data = {
-                success: false,
-                message: "Delete comment failed, comment not found",
-              };
-            } else {
-              if (
-                blogArray.some((id) => id.equals(idBlog)) ||
-                commentArray.some((id) => id.equals(idComment))
-              ) {
-                const acByComment = await adminController.checkAccountByComment(
-                  idComment
-                );
-                // console.log(acByComment);
-                await comment.delete();
-                await account.updateOne({
-                  $pull: {
-                    comments: idComment,
-                  },
-                });
-                await blog.updateOne({
-                  $pull: {
-                    comments: idComment,
-                  },
-                });
-
-                await acByComment.updateOne({
-                  $pull: {
-                    comments: idComment,
-                  },
-                });
-                status = 200;
-                data = {
-                  success: true,
-                  message: "Delete comment successfully",
-                };
-              } else {
-                status = 403;
-                data = {
-                  success: false,
-                  message: "You do not have permission to delete this comment",
-                };
-              }
-            }
+            status = 403;
+            data = {
+              success: false,
+              message: "You do not have permission to delete this comment",
+            };
           }
         }
       }
@@ -193,7 +172,6 @@ const commentController = {
     let status = 500;
     let data = null;
     try {
-      const idBlog = req.query.idBlog;
       const idComment = req.query.idComment;
       const account = await adminController.checkAccountById(req.user.id);
       let content = req.body.content;
@@ -201,59 +179,42 @@ const commentController = {
       let comments = account.comments;
 
       const commentArray = comments.map((comment) => comment._id);
-      if (!idBlog) {
+
+      if (!idComment) {
         status = 404;
         data = {
           success: false,
-          message: "Update comment failed due to lack idBlog",
+          message: "Update comment failed due to lack idComment",
         };
       } else {
-        const blog = await Blog.findById(idBlog);
-        if (!blog) {
+        const comment = await Comment.findById(idComment);
+        if (!comment) {
           status = 404;
           data = {
             success: false,
-            message: "Update comment failed, blog not found",
+            message: "Update comment failed, comment not found",
           };
         } else {
-          if (!idComment) {
-            status = 404;
+          if (content == undefined || content == "") {
+            content = comment.content;
+          }
+          if (commentArray.some((id) => id.equals(idComment))) {
+            await comment.updateOne({
+              $set: {
+                content: content,
+              },
+            });
+            status = 200;
             data = {
-              success: false,
-              message: "Update comment failed due to lack idComment",
+              success: true,
+              message: "Updated comment successfully",
             };
           } else {
-            const comment = await Comment.findById(idComment);
-            if (!comment) {
-              status = 404;
-              data = {
-                success: false,
-                message: "Update comment failed, comment not found",
-              };
-            } else {
-              if (content == undefined || content == "") {
-                content = comment.content;
-              }
-              console.log(content);
-              if (commentArray.some((id) => id.equals(idComment))) {
-                await comment.updateOne({
-                  $set: {
-                    content: content,
-                  },
-                });
-                status = 200;
-                data = {
-                  success: true,
-                  message: "Updated comment successfully",
-                };
-              } else {
-                status = 403;
-                data = {
-                  success: false,
-                  message: "You do not have permission to update this comment",
-                };
-              }
-            }
+            status = 403;
+            data = {
+              success: false,
+              message: "You do not have permission to update this comment",
+            };
           }
         }
       }
