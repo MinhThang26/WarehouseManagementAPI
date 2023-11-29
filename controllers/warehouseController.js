@@ -1,5 +1,6 @@
 const Owner = require("../models/Owner");
 const Warehouse = require("../models/Warehouse");
+const Blog = require("../models/Blog");
 const WarehouseCategory = require("../models/WarehouseCategory");
 
 const WarehouseController = {
@@ -25,8 +26,13 @@ const WarehouseController = {
                 else if (!req.body.address) {
                     res.status(401).json({ message: "Không được bỏ trống địa chỉ kho hàng " });
                 }
+<<<<<<< HEAD
                 else if (!req.body.capacity){
                     res.status(401).json({ message: "Không được bỏ trống diện tích kho hàng " });
+=======
+                else if (!req.body.capacity) {
+                    res.status(401).json({ message: "Không được bỏ trống dien tich kho hàng " });
+>>>>>>> Khai-do
                 }
                 else if (!req.body.category) {
                     res.status(401).json({ message: "Không được bỏ trống danh mục kho" });
@@ -134,7 +140,10 @@ const WarehouseController = {
                 const { id } = req.params;
                 const warehouses = await Warehouse.findByIdAndDelete(id);
                 const warehouses1 = await Owner.updateMany({ $pull: { warehouses: id } });
-                if (warehouses && warehouses1) {
+                const blog = await Blog.findOne({warehouse: id});
+                await blog.deleteOne();
+                console.log(blog)
+                if (warehouses && warehouses1 && blog) {
                     res.status(200).json({ message: "Delete warehouse successfully!" });
                 } else {
                     res.status(404).json({ message: `cannot find any warehouses` });
