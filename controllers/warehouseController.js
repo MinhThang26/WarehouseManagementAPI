@@ -26,14 +26,6 @@ const WarehouseController = {
                 else if (!req.body.address) {
                     res.status(401).json({ message: "Không được bỏ trống địa chỉ kho hàng " });
                 }
-<<<<<<< HEAD
-                else if (!req.body.capacity){
-                    res.status(401).json({ message: "Không được bỏ trống diện tích kho hàng " });
-=======
-                else if (!req.body.capacity) {
-                    res.status(401).json({ message: "Không được bỏ trống dien tich kho hàng " });
->>>>>>> Khai-do
-                }
                 else if (!req.body.category) {
                     res.status(401).json({ message: "Không được bỏ trống danh mục kho" });
                 }
