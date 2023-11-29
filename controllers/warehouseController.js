@@ -207,7 +207,7 @@ const WarehouseController = {
                 $or: [
                     { _id: req.query.id }
                 ]
-            }).populate({ path: "category", select: "name" }).populate("owner");
+            }).populate("category").populate("owner");
             console.log(warehouse);
             if (warehouse) {
                 res.status(200).json({
