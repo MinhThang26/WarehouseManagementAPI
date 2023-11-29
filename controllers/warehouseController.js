@@ -89,7 +89,7 @@ const WarehouseController = {
                         { owner: req.query.id_owner }
                     ]
                 }
-                ).populate({ path: "category", select: "name" }).populate("owner");
+                ).populate("category").populate("owner");
                 console.log(warehouse);
                 if (!warehouse) {
                     status = 401;
