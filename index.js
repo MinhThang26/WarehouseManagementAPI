@@ -32,11 +32,13 @@ const warehouseRouter = require("./routers/warehouseRouter");
 const adminRouter = require("./routers/adminRouter");
 const orderController = require("./routers/orderRouter");
 const blogRouter = require("./routers/blogRouter");
+const commentRouter = require("./routers/commentRouter");
 
 app.use("/v1/auth", authRouter);
 app.use("/v1/warehouse", warehouseRouter);
 app.use("/v1/admin", adminRouter);
 app.use("/v1/order", orderController);
 app.use("/v1/blog", blogRouter);
+app.use("/v1/blog/comment", commentRouter);
 
 module.exports = app;

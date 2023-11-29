@@ -2,6 +2,7 @@ const uploadCloud = require("../config/cloudinaryConfig");
 const Blog = require("../models/Blog");
 const Owner = require("../models/Owner");
 const Warehouse = require("../models/Warehouse");
+const Comment = require("../models/Comment");
 const blogController = {
   uploadImages: (req) => {
     return new Promise((resolve, reject) => {
@@ -156,10 +157,11 @@ const blogController = {
         const { id } = req.params;
         const blog = await Blog.findByIdAndDelete(id);
         const blog1 = await Owner.updateMany({ $pull: { blogs: id } });
-        //const blog2 = await Warehouse.updateOne({ $pull: { warehouses: id } });
+        const blog2 = await Comment.findOne({blog: id});
+        await blog2.delete();
         console.log(id);
-        console.log(blog1);
-        if (blog && blog1) {
+        console.log(blog2);
+        if (blog && blog1 && blog2) {
           status = 200;
           data = {
             success: true,
@@ -182,6 +184,7 @@ const blogController = {
     } catch (error) {
       data = error;
     }
+    console.log(data)
     res.status(status).json(data);
   },
   getListBlogByAll: async (req, res) => {
@@ -291,6 +294,149 @@ const blogController = {
     }
     return response;
   },
+  likeBlog: async (req, res) => {
+    let status = 500;
+    let data = null;
+    try {
+      const { id } = req.user;
+      const { bid } = req.params;
+      console.log(bid)
+      if (!bid) {
+        status = 400;
+        data = {
+          success: false,
+          message: "Blog upBlog id not found or invalid blog iddate failed due to lack id blog",
+        };
+      }
+      const blog = await Blog.findById(bid);
+      const alreadyDisliked = blog?.dislikes?.find(el => el.toString() === id);
+      //Kiểm tra người dùng trước đó có dislike không -> bỏ dislike
+      if (alreadyDisliked) {
+        const response = await Blog.findByIdAndUpdate(bid, { $pull: { dislikes: id } }, { new: true });
+        if (response) {
+          status = 200;
+          data = {
+            success: true,
+            blog: response,
+          };
+        } else {
+          status = 404;
+          data = {
+            success: false,
+            message: "Blog data failed",
+          };
+        }
+      }
+      //Kiểm tra xem người đó có trước có like hay không -> bỏ like / thêm like
+      const isLiked = blog?.likes?.find(el => el.toString() === id);
+      if (isLiked) {
+        const response = await Blog.findByIdAndUpdate(bid, { $pull: { likes: id } }, { new: true });
+        if (response) {
+          status = 200;
+          data = {
+            success: true,
+            blog: response,
+          };
+        } else {
+          status = 404;
+          data = {
+            success: false,
+            message: "Blog data failed",
+          };
+        }
+      } else {
+        const response = await Blog.findByIdAndUpdate(bid, { $push: { likes: id } }, { new: true });
+        if (response) {
+          status = 200;
+          data = {
+            success: true,
+            blog: response,
+          };
+        } else {
+          status = 404;
+          data = {
+            success: false,
+            message: "Blog data failed",
+          };
+        }
+      }
+    } catch {
+      data = error;
+    }
+    res.status(status).json(data);
+  },
+  disLikeBlog: async (req, res) => {
+    let status = 500;
+    let data = null;
+    try {
+      const { id } = req.user;
+      const { bid } = req.params;
+      console.log(bid)
+      if (!bid) {
+        status = 400;
+        data = {
+          success: false,
+          message: "Blog upBlog id not found or invalid blog iddate failed due to lack id blog",
+        };
+      }
+      const blog = await Blog.findById(bid);
+      const alreadyLiked = blog?.likes?.find(el => el.toString() === id);
+      //Kiểm tra người dùng trước đó có like không -> bỏ like
+      if (alreadyLiked) {
+        const response = await Blog.findByIdAndUpdate(bid, { $pull: { likes: id } }, { new: true });
+        if (response) {
+          status = 200;
+          data = {
+            success: true,
+            blog: response,
+          };
+        } else {
+          status = 404;
+          data = {
+            success: false,
+            message: "Blog data failed",
+          };
+        }
+      }
+      //Kiểm tra xem người đó có trước có dislike hay không -> bỏ dislike / thêm dislike
+      const isDisLiked = blog?.dislikes?.find(el => el.toString() === id);
+      if (isDisLiked) {
+        const response = await Blog.findByIdAndUpdate(bid, { $pull: { dislikes: id } }, { new: true });
+        if (response) {
+          status = 200;
+          data = {
+            success: true,
+            blog: response,
+          };
+        } else {
+          status = 404;
+          data = {
+            success: false,
+            message: "Blog data failed",
+          };
+        }
+      } else {
+        const response = await Blog.findByIdAndUpdate(bid, { $push: { dislikes: id } }, { new: true });
+        if (response) {
+          status = 200;
+          data = {
+            success: true,
+            blog: response,
+          };
+        } else {
+          status = 404;
+          data = {
+            success: false,
+            message: "Blog data failed",
+          };
+        }
+      }
+    } catch {
+      data = error;
+    }
+    res.status(status).json(data);
+  },
+  
 };
 
 module.exports = blogController;
