@@ -1,5 +1,7 @@
 const Blog = require("../models/Blog");
 const Comment = require("../models/Comment");
+const Owner = require("../models/Owner");
+const User = require("../models/User");
 const adminController = require("./adminController");
 const { checkAccountById } = require("./adminController");
 
@@ -61,6 +63,7 @@ const commentController = {
       }
     } catch (error) {
       data = error;
+      console.log(data);
     }
     res.status(status).json(data);
   },
@@ -84,7 +87,13 @@ const commentController = {
             message: "Read comment failed, blog not found",
           };
         } else {
-          const comments = await Comment.find({ blog: idBlog });
+          // const comments = await Comment.find({ blog: idBlog }).populate({
+          //   path: "account",
+          //   model: (doc) => (doc.isOwner ? "Owner" : "User"),
+          // });
+          const comments = await Comment.find({ blog: idBlog }).populate(
+            "account"
+          );
           status = 200;
           data = {
             success: true,
@@ -95,6 +104,7 @@ const commentController = {
       }
     } catch (error) {
       data = error;
+      console.log(data);
     }
     res.status(status).json(data);
   },
