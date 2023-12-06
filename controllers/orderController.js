@@ -44,7 +44,7 @@ const OrderController = {
                         const user = User.findById(idUser);
                         await user.updateOne({ $push: { orders: saveOrder._id } });
                     }
-                    if (req.body.warehouses) {
+                    if (Warehouse.findById(req.body.warehouses)) {
                         const warehouses = Warehouse.findById(req.body.warehouses);
                         await warehouses.updateOne({ $push: { orders: saveOrder._id } });
                     }
