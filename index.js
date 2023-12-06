@@ -33,6 +33,8 @@ const adminRouter = require("./routers/adminRouter");
 const orderController = require("./routers/orderRouter");
 const blogRouter = require("./routers/blogRouter");
 const commentRouter = require("./routers/commentRouter");
+const chatRouter = require("./routers/chatRouter");
+const messageRouter = require("./routers/messageRouter");
 
 app.use("/v1/auth", authRouter);
 app.use("/v1/warehouse", warehouseRouter);
@@ -40,5 +42,7 @@ app.use("/v1/admin", adminRouter);
 app.use("/v1/order", orderController);
 app.use("/v1/blog", blogRouter);
 app.use("/v1/blog/comment", commentRouter);
+app.use("/v1/chat", chatRouter);
+app.use("/v1/message", messageRouter);
 
 module.exports = app;
