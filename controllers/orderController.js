@@ -15,6 +15,7 @@ const OrderController = {
       let capacity;
       let currentCapacity;
       let money;
+      let percent;
       const user = await User.findById(IDuser);
       if (!user) {
         status = 403;
@@ -39,7 +40,13 @@ const OrderController = {
               message: "Warehouse not found",
             };
           } else {
-            if (!rentalTime) {
+            if (warehouse.currentCapacity == 0) {
+              status = 400;
+              data = {
+                success: false,
+                message: "Full warehouse capacity",
+              };
+            } else if (!rentalTime) {
               status = 400;
               data = {
                 success: false,
@@ -52,27 +59,55 @@ const OrderController = {
                 message: "Missing capacity",
               };
             } else {
+              percent = (warehouse.currentCapacity / warehouse.capacity) * 100;
+              console.log(percent);
               switch (percentCapacity) {
                 case "25%":
                   capacity = warehouse.capacity * 0.25;
-                  currentCapacity = warehouse.capacity - capacity;
+                  currentCapacity = warehouse.currentCapacity - capacity;
                   money = warehouse.monney * 0.25;
                   break;
                 case "50%":
-                  capacity = warehouse.capacity * 0.5;
-                  currentCapacity = warehouse.capacity - capacity;
-                  money = warehouse.monney * 0.5;
-                  break;
+                  if (percent >= 50) {
+                    capacity = warehouse.capacity * 0.5;
+                    currentCapacity = warehouse.currentCapacity - capacity;
+                    money = warehouse.monney * 0.5;
+                    break;
+                  } else {
+                    res.status(400).json({
+                      success: false,
+                      message: "Not enough capacity",
+                    });
+                    return;
+                  }
+
                 case "75%":
-                  capacity = warehouse.capacity * 0.75;
-                  currentCapacity = warehouse.capacity - capacity;
-                  money = warehouse.monney * 0.75;
-                  break;
+                  if (percent >= 75) {
+                    capacity = warehouse.capacity * 0.75;
+                    currentCapacity = warehouse.currentCapacity - capacity;
+                    money = warehouse.monney * 0.75;
+                    break;
+                  } else {
+                    res.status(400).json({
+                      success: false,
+                      message: "Not enough capacity",
+                    });
+                    return;
+                  }
+
                 case "100%":
-                  capacity = warehouse.capacity;
-                  currentCapacity = warehouse.capacity - capacity;
-                  money = warehouse.monney;
-                  break;
+                  if (percent == 100) {
+                    capacity = warehouse.capacity;
+                    currentCapacity = warehouse.currentCapacity - capacity;
+                    money = warehouse.monney;
+                    break;
+                  } else {
+                    res.status(400).json({
+                      success: false,
+                      message: "Not enough capacity",
+                    });
+                    return;
+                  }
                 default:
                   res.status(400).json({
                     success: false,
