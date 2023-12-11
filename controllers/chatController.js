@@ -1,4 +1,6 @@
 const Chat = require("../models/Chat");
+const Owner = require("../models/Owner");
+const User = require("../models/User");
 
 const chatController = {
     createChat: async (req, res) => {
@@ -145,7 +147,56 @@ const chatController = {
             data = error;
         }
         res.status(status).json(data);
-    }
+    },
+
+    getProfileUser: async(req, res) => {
+        let status = 500;
+        let data = null;
+        try {
+            const id = req.params;
+            const profileUser = await User.findOne(id);
+            if (profileUser) {
+                    status = 200;
+                    data = {
+                        success: true,
+                        User: profileUser,
+                    };
+                } else {
+                    status = 404;
+                    data = {
+                        success: false,
+                        message: "Chat data failed",
+                    };
+                }
+        } catch (error) {
+            data = error;
+        }
+        res.status(status).json(data);
+    },
+    getProfileOwner: async(req, res) => {
+        let status = 500;
+        let data = null;
+        try {
+            const id = req.params;
+            const profileOwner = await Owner.findOne(id);
+            if (profileOwner) {
+                    status = 200;
+                    data = {
+                        success: true,
+                        Owner: profileOwner,
+                    };
+                } else {
+                    status = 404;
+                    data = {
+                        success: false,
+                        message: "Chat data failed",
+                    };
+                }
+        } catch (error) {
+            data = error;
+        }
+        res.status(status).json(data);
+    },
 }
 
 module.exports = chatController;
