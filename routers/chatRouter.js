@@ -17,5 +17,10 @@ router.get(
     middlewareController.verifyToken,
     chatController.findChat
 );
+router.get(
+    "/listChat",
+    middlewareController.verifyToken,
+    chatController.getListChat
+);
 
 module.exports = router;
