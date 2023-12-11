@@ -6,33 +6,42 @@ const chatController = {
         let data = null;
         try {
             const { firstId, secondId } = req.body;
-            const chat = await Chat.findOne({
-                members: { $all: [firstId, secondId] },
-            });
-            if (chat) {
-                status = 200;
-                data = {
-                    success: true,
-                    chat: chat,
-                };
-            }
-            const newChat = new Chat({
-                members: [firstId, secondId],
-            })
-            const result = await newChat.save();
-            if (result) {
-                status = 200;
-                data = {
-                    success: true,
-                    chat: result,
-                };
+            if (firstId == null || firstId == "" || secondId == "" || secondId == null ) {
+                status = 400;
+                    data = {
+                        success: false,
+                        message: "Create chat failed due to lack content",
+                    };
             } else {
-                status = 404;
-                data = {
-                    success: false,
-                    message: "Chat data failed",
-                };
+                const chat = await Chat.findOne({
+                    members: { $all: [firstId, secondId] },
+                });
+                if (chat) {
+                    status = 200;
+                    data = {
+                        success: true,
+                        chat: chat,
+                    };
+                }
+                const newChat = new Chat({
+                    members: [firstId, secondId],
+                })
+                const result = await newChat.save();
+                if (result) {
+                    status = 200;
+                    data = {
+                        success: true,
+                        chat: result,
+                    };
+                } else {
+                    status = 404;
+                    data = {
+                        success: false,
+                        message: "Chat data failed",
+                    };
+                }
             }
+
         } catch (error) {
             console.log(error);
             data = error;
