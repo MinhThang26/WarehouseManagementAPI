@@ -121,6 +121,30 @@ const chatController = {
             data = error;
         }
         res.status(status).json(data);
+    },
+
+    getListChat: async(req, res) => {
+        let status = 500;
+        let data = null;
+        try {
+            const chat = await Chat.find();
+            if (chat) {
+                    status = 200;
+                    data = {
+                        success: true,
+                        chat: chat,
+                    };
+                } else {
+                    status = 404;
+                    data = {
+                        success: false,
+                        message: "Chat data failed",
+                    };
+                }
+        } catch (error) {
+            data = error;
+        }
+        res.status(status).json(data);
     }
 }
 
