@@ -22,5 +22,13 @@ router.get(
     middlewareController.verifyToken,
     chatController.getListChat
 );
+router.get(
+    "/getProfileUser/:id",
+    chatController.getProfileUser
+);
+router.get(
+    "/getProfileOwner/:id",
+    chatController.getProfileOwner
+);
 
 module.exports = router;
