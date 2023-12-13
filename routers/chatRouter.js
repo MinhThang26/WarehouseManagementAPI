@@ -30,5 +30,10 @@ router.get(
     "/getProfileOwner/:id",
     chatController.getProfileOwner
 );
+router.delete(
+    "/deleteChat/:id",
+    middlewareController.verifyToken,
+    chatController.deleteChat
+);
 
 module.exports = router;

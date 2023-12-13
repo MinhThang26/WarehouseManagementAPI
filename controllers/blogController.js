@@ -160,7 +160,7 @@ const blogController = {
         const blog1 = await Owner.updateMany({ $pull: { blogs: id } });
         const blog2 = await Comment.findOne({ blog: id });
         console.log(blog2);
-        if (blog2 === "null" || blog2 == "") {
+        if (blog2 || blog2 === "null" || blog2 == "") {
           console.log(blog2);
           await blog2.delete();
         }
