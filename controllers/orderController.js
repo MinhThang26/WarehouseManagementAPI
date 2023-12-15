@@ -249,7 +249,7 @@ const OrderController = {
         })
           .populate("user")
           .populate("owner")
-          .populate("warehouses");
+          .populate("warehouse");
         console.log(order);
 
         if (!order) {
@@ -276,7 +276,7 @@ const OrderController = {
         })
           .populate("user")
           .populate("owner")
-          .populate("warehouses");
+          .populate("warehouse");
         console.log(order);
         if (!order) {
           res.status(401).json({ message: "khong co don hang" });
@@ -295,7 +295,7 @@ const OrderController = {
       })
         .populate("user")
         .populate("owner")
-        .populate("warehouses");
+        .populate("warehouse");
       console.log(order);
       if (order) {
         res.status(200).json({
@@ -318,7 +318,7 @@ const OrderController = {
       const result = await Order.find(searchOptions)
         .populate("owner")
         .populate("user")
-        .populate("warehouses");
+        .populate("warehouse");
       console.log(result);
       if (result) {
         res.status(200).json({
