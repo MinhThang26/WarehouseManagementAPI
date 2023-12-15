@@ -224,7 +224,7 @@ const chatController = {
                     await chat2.delete();
                     console.log(chat2);
                 }
-                if (chat && chat2) {
+                if (chat || chat2) {
                     status = 200;
                     data = {
                         success: true,
