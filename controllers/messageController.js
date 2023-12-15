@@ -6,8 +6,14 @@ const messageController = {
         let data = null;
         try {
             const { chatId, senderId, text } = req.body;
-
-            const message = new Message({
+            if (chatId == null || chatId == "" || senderId == "" || senderId == null || text == "" || text == null ) {
+                status = 400;
+                data = {
+                    success: false,
+                    message: "Create message failed due to lack content",
+                };
+            }else{
+                const message = new Message({
                 chatId,
                 senderId,
                 text,
@@ -27,6 +33,9 @@ const messageController = {
                     message: "Message data failed",
                 };
             }
+            }
+
+            
         } catch (error) {
             console.log(error);
             data = error;
@@ -40,7 +49,7 @@ const messageController = {
         try {
             const { chatId } = req.params;
             if (chatId) {
-                const message = await Message.find({ chatId })
+                const message = await Message.findOne({ chatId })
                 if (message) {
                     status = 200;
                     data = {
@@ -51,7 +60,7 @@ const messageController = {
                     status = 404;
                     data = {
                         success: false,
-                        message: "Chat data failed",
+                        message: "Message data failed",
                     };
                 }
             }
@@ -94,7 +103,7 @@ const messageController = {
                     status = 404;
                     data = {
                         success: false,
-                        message: "Chat data failed",
+                        message: "deletion failed",
                     };
                 }
             }
