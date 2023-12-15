@@ -234,7 +234,7 @@ const chatController = {
                     status = 404;
                     data = {
                         success: false,
-                        message: "Chat data failed",
+                        message: "deletion failed",
                     };
                 }
             }
