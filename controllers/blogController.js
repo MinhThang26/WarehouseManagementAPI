@@ -3,6 +3,7 @@ const Blog = require("../models/Blog");
 const Owner = require("../models/Owner");
 const Warehouse = require("../models/Warehouse");
 const Comment = require("../models/Comment");
+const { login } = require("./authController");
 const blogController = {
   uploadImages: (req) => {
     return new Promise((resolve, reject) => {
@@ -157,23 +158,26 @@ const blogController = {
         const { id } = req.params;
         const blog = await Blog.findByIdAndDelete(id);
         const blog1 = await Owner.updateMany({ $pull: { blogs: id } });
-        const blog2 = await Comment.findOne({blog: id});
-        await blog2.delete();
-        console.log(id);
+        const blog2 = await Comment.findOne({ blog: id });
         console.log(blog2);
-        if (blog && blog1 && blog2) {
-          status = 200;
-          data = {
-            success: true,
-            message: "Delete blog successfully!",
-          };
-        } else {
-          status = 404;
-          data = {
-            success: false,
-            message: `cannot find any blog`,
-          };
+        if (blog2 || blog2 === "null" || blog2 == "") {
+          console.log(blog2);
+          await blog2.delete();
         }
+        if (blog && blog1) {
+            status = 200;
+            data = {
+              success: true,
+              message: "Delete blog successfully!",
+            };
+          } else {
+            status = 404;
+            data = {
+              success: false,
+              message: `cannot find any blog`,
+            };
+          }
+
       } else {
         status = 401;
         data = {
@@ -436,7 +440,7 @@ const blogController = {
     }
     res.status(status).json(data);
   },
-  
+
 };
 
 module.exports = blogController;
