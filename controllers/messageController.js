@@ -49,7 +49,7 @@ const messageController = {
         try {
             const { chatId } = req.params;
             if (chatId) {
-                const message = await Message.findOne({ chatId })
+                const message = await Message.find({ chatId })
                 if (message) {
                     status = 200;
                     data = {
