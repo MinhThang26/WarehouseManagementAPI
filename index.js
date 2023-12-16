@@ -4,11 +4,10 @@ const mongoose = require("mongoose");
 var bodyParser = require("body-parser");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
-const socketIO = require('socket.io');
 const http = require('http');
 const app = express();
 const server = http.createServer(app);
-const io = socketIO(server);
+const io = require("socket.io")(server);
 
 app.use(cookieParser());
 app.use(bodyParser.json());
@@ -33,6 +32,7 @@ mongoose.connection.once("open", () => {
 
 io.on('connection', (socket) => {
   console.log('A user connected');
+  
   socket.on('disconnect', () => {
     console.log('A user disconnected');
   });
