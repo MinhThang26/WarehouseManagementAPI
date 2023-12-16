@@ -27,9 +27,9 @@ const orderSchema = mongoose.Schema(
       type: String,
       require: true,
     },
-    isActive: {
-      type: Boolean,
-      default: false,
+    status: {
+      type: Number,
+      default: 0,
     },
   },
   { timestamps: true }
