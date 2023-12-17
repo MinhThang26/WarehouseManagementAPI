@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 var bodyParser = require("body-parser");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
-const http = require('http');
+const http = require("http");
 const app = express();
 const server = http.createServer(app);
 const io = require("socket.io")(server);
@@ -22,7 +22,7 @@ const port = process.env.PORT;
 var dbConn = require("./config/databaseConfig");
 mongoose.connection.once("open", () => {
   console.log("Connect mongodb");
-  app.listen(port, () => {
+  server.listen(port, () => {
     console.log("server api port " + port);
     setInterval(function () {
       console.log("server api port " + port);
@@ -30,11 +30,11 @@ mongoose.connection.once("open", () => {
   });
 });
 
-io.on('connection', (socket) => {
-  console.log('A user connected');
-  
-  socket.on('disconnect', () => {
-    console.log('A user disconnected');
+io.on("connection", (socket) => {
+  console.log("A user connected");
+
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
   });
 });
 
