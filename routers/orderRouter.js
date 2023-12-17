@@ -49,4 +49,10 @@ router.put(
   OrderController.activateOrder
 );
 
+router.put(
+  "/payment",
+  middlewareController.verifyTokenIsOwner,
+  OrderController.paymentOrder
+);
+
 module.exports = router;
