@@ -344,7 +344,12 @@ const OrderController = {
       })
         .populate("user")
         .populate("owner")
-        .populate("warehouse");
+        .populate({
+          path: "warehouse",
+          populate: {
+            path: "category",
+          },
+        });
       console.log(order);
       if (order) {
         res.status(200).json({
@@ -355,6 +360,7 @@ const OrderController = {
         res.status(404).json({ message: "View order data failed" });
       }
     } catch {
+      console.log(error);
       res.status(500).json({ message: error.message });
     }
   },
