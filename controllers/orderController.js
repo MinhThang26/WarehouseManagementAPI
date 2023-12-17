@@ -164,7 +164,7 @@ const OrderController = {
       const idUser = req.user.id;
       const id = req.query.id_order;
       const order = await Order.findById(id);
-      const warehouse = await Warehouse.findOne({ warehouse: order.warehouse })
+      const warehouse = await Warehouse.findOne({ _id: order.warehouse });
       if (order.status == 0 || order.status == 1) {
         if (!id && !idUser) {
           res
@@ -180,28 +180,36 @@ const OrderController = {
           if (idUser != users) {
             res.status(401).json({ message: "Xoa kho không thành công" });
           } else {
-            const order = await Order.findByIdAndDelete(id);
+            const order0 = await Order.findByIdAndDelete(id);
             const order1 = await User.updateMany({ $pull: { orders: id } });
             const order2 = await Owner.updateMany({ $pull: { orders: id } });
-            const order3 = await Warehouse.updateMany({ $pull: { orders: id } });
+            const order3 = await Warehouse.updateMany({
+              $pull: { orders: id },
+            });
 
             // await User.updateMany({orders: id},{$pull: {orders:id}})
             // await Owner.updateMany({orders: id},{$pull: {orders:id}})
             // await Warehouse.updateMany({orders: id},{$pull: {orders:id}})
-            if (order && order1 && order2 && order3) {
+            if (order0 && order1 && order2 && order3) {
+              await warehouse.updateOne({
+                $set: {
+                  currentCapacity: warehouse.currentCapacity + order.capacity,
+                },
+              });
               res.status(200).json("Delete order successfully!");
             } else {
               res.status(404).json({ message: `cannot find any order` });
             }
           }
         }
-      }else if(order.status == 2){
-        await order.updateOne({$set: {status: 3}})
-        
-        await warehouse.updateOne({$set: {currentCapacity: warehouse.currentCapacity + order.capacity}})
+      } else if (order.status == 2) {
+        await order.updateOne({ $set: { status: 3 } });
+
+        await warehouse.updateOne({
+          $set: { currentCapacity: warehouse.currentCapacity + order.capacity },
+        });
         res.status(200).json("Delete order successfully!");
       }
-
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
@@ -212,7 +220,7 @@ const OrderController = {
       const idOwner = req.user.id;
       const id = req.query.id_order;
       const order = await Order.findById(id);
-      const warehouse = await Warehouse.findOne({ warehouse: order.warehouse })
+      const warehouse = await Warehouse.findOne({ _id: order.warehouse });
       if (order.status == 0 || order.status == 1) {
         if (!id && !idOwner) {
           res
@@ -227,86 +235,107 @@ const OrderController = {
           if (idOwner != owner) {
             res.status(401).json({ message: "Xoa kho không thành công" });
           } else {
-            const order = await Order.findByIdAndDelete(id);
+            const order0 = await Order.findByIdAndDelete(id);
             const order1 = await User.updateMany({ $pull: { orders: id } });
             const order2 = await Owner.updateMany({ $pull: { orders: id } });
-            const order3 = await Warehouse.updateMany({ $pull: { orders: id } });
+            const order3 = await Warehouse.updateMany({
+              $pull: { orders: id },
+            });
 
             // await User.updateMany({orders: id},{$pull: {orders:id}})
             // await Owner.updateMany({orders: id},{$pull: {orders:id}})
             // await Warehouse.updateMany({orders: id},{$pull: {orders:id}})
-            if (order && order1 && order2 && order3) {
-              await warehouse.updateOne({ $set: { currentCapacity: warehouse.currentCapacity + order.capacity } })
+            if (order0 && order1 && order2 && order3) {
+              await warehouse.updateOne({
+                $set: {
+                  currentCapacity: warehouse.currentCapacity + order.capacity,
+                },
+              });
               res.status(200).json("Delete order successfully!");
             } else {
               res.status(404).json({ message: `cannot find any order` });
             }
           }
         }
-      }
-      else if (order.status == 2) {
-        await order.updateOne({ $set: { status: 3 } })
+      } else if (order.status == 2) {
+        await order.updateOne({ $set: { status: 3 } });
 
-        await warehouse.updateOne({ $set: { currentCapacity: warehouse.currentCapacity + order.capacity } })
+        await warehouse.updateOne({
+          $set: { currentCapacity: warehouse.currentCapacity + order.capacity },
+        });
         res.status(200).json("Delete order successfully!");
       }
-
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
   },
   getOrderForOwner: async (req, res) => {
+    let status = 500;
+    let data = null;
     try {
-      const idOwner = req.query.id_owner;
-      if (!idOwner) {
-        res.status(401).json({
-          message:
-            "xem danh sách đơn hàng không thành công vì không phải là chủ kho",
-        });
-      } else {
-        const order = await Order.find({
-          $or: [{ owner: req.query.id_owner }],
-        })
-          .populate("user")
-          .populate("owner")
-          .populate("warehouse");
-        console.log(order);
-
-        if (!order) {
-          res.status(401).json({ message: "khong co don hang" });
-        } else {
-          res.status(200).json(order);
-        }
+      const idAccount = req.user.id;
+      let orderStatus = req.query.status;
+      if (!orderStatus) {
+        orderStatus = 0;
       }
-    } catch (err) {
-      res.status(500).json(err); //HTTP Request code
+      const orders = await Order.find({ owner: idAccount, status: orderStatus })
+        .populate("owner")
+        .populate("user")
+        .populate("warehouse");
+      if (!orders) {
+        status = 400;
+        data = {
+          success: false,
+          message: "Your warehouses are not rented yet",
+        };
+      } else {
+        status = 200;
+        data = {
+          success: true,
+          message:
+            "List order status " + orderStatus + " by owner successfully ",
+          data: orders,
+        };
+      }
+    } catch (error) {
+      data = error;
+      console.log(data);
     }
+    res.status(status).json(data);
   },
   getOrderForUser: async (req, res) => {
+    let status = 500;
+    let data = null;
     try {
-      const idUser = req.query.id_user;
-      if (!idUser) {
-        res.status(401).json({
-          message:
-            "xem danh sách đơn hàng không thành công vì không phải là khách hàng",
-        });
-      } else {
-        const order = await Order.find({
-          $or: [{ user: req.query.id_user }],
-        })
-          .populate("user")
-          .populate("owner")
-          .populate("warehouse");
-        console.log(order);
-        if (!order) {
-          res.status(401).json({ message: "khong co don hang" });
-        } else {
-          res.status(200).json(order);
-        }
+      const idAccount = req.user.id;
+      let orderStatus = req.query.status;
+      if (!orderStatus) {
+        orderStatus = 0;
       }
-    } catch (err) {
-      res.status(500).json(err); //HTTP Request code
+      const orders = await Order.find({ user: idAccount, status: orderStatus })
+        .populate("owner")
+        .populate("user")
+        .populate("warehouse");
+      if (!orders) {
+        status = 400;
+        data = {
+          success: false,
+          message: "Your warehouses are not rented yet",
+        };
+      } else {
+        status = 200;
+        data = {
+          success: true,
+          message:
+            "List order status " + orderStatus + " by user successfully ",
+          data: orders,
+        };
+      }
+    } catch (error) {
+      data = error;
+      console.log(data);
     }
+    res.status(status).json(data);
   },
   getAOrder: async (req, res) => {
     try {
@@ -382,13 +411,61 @@ const OrderController = {
           } else {
             await order.updateOne({
               $set: {
-                isActive: true,
+                status: 1,
               },
             });
             status = 200;
             data = {
               success: true,
               message: "Activate order successfully",
+            };
+          }
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      data = error;
+    }
+    res.status(status).json(data);
+  },
+  paymentOrder: async (req, res) => {
+    let status = 500;
+    let data = null;
+    try {
+      const id_owner = req.user.id;
+      const id_order = req.query.id_order;
+      if (!id_order) {
+        status = 404;
+        data = {
+          success: false,
+          message: "Missing ID Order",
+        };
+      } else {
+        const order = await Order.findById(id_order);
+        if (!order) {
+          status = 404;
+          data = {
+            success: false,
+            message: "Order not found",
+          };
+        } else {
+          if (!id_owner == order.owner) {
+            status = 404;
+            data = {
+              success: false,
+              message:
+                "You do not have permission to confirm payment this order",
+            };
+          } else {
+            await order.updateOne({
+              $set: {
+                status: 2,
+              },
+            });
+            status = 200;
+            data = {
+              success: true,
+              message: "Confirm payment order successfully",
             };
           }
         }
