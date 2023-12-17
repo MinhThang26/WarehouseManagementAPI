@@ -6,13 +6,19 @@ const messageController = {
         let data = null;
         try {
             const { chatId, senderId, text } = req.body;
-
-            const message = new Message({
+            if (chatId == null || chatId == "" || senderId == "" || senderId == null || text == "" || text == null ) {
+                status = 400;
+                data = {
+                    success: false,
+                    message: "Create message failed due to lack content",
+                };
+            }else{
+                const message = new Message({
                 chatId,
                 senderId,
                 text,
             });
-            
+
             const result = await message.save();
             if (result) {
                 status = 200;
@@ -27,6 +33,9 @@ const messageController = {
                     message: "Message data failed",
                 };
             }
+            }
+
+            
         } catch (error) {
             console.log(error);
             data = error;
@@ -38,9 +47,9 @@ const messageController = {
         let status = 500;
         let data = null;
         try {
-            const {chatId} = req.params;
+            const { chatId } = req.params;
             if (chatId) {
-                const message = await Message.find({chatId})
+                const message = await Message.find({ chatId })
                 if (message) {
                     status = 200;
                     data = {
@@ -51,7 +60,7 @@ const messageController = {
                     status = 404;
                     data = {
                         success: false,
-                        message: "Chat data failed",
+                        message: "Message data failed",
                     };
                 }
             }
@@ -67,7 +76,45 @@ const messageController = {
             data = error;
         }
         res.status(status).json(data);
-    }
+    },
+
+    deleteMessage: async (req, res) => {
+        let status = 500;
+        let data = null;
+        try {
+            const { id } = req.params;
+            if (!id) {
+                status = 403;
+                data = {
+                    success: false,
+                    message: "No id found or incorrect id",
+                };
+            }
+            else {
+                const message = await Message.findByIdAndDelete(id);
+                console.log(message);
+                if (message) {
+                    status = 200;
+                    data = {
+                        success: true,
+                        message: "Delete successfully",
+                    };
+                } else {
+                    status = 404;
+                    data = {
+                        success: false,
+                        message: "deletion failed",
+                    };
+                }
+            }
+
+        } catch (error) {
+            console.log(error);
+            data = error;
+        }
+        res.status(status).json(data);
+    },
+
 }
 
 module.exports = messageController;

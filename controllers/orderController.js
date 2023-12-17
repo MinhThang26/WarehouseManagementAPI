@@ -161,38 +161,47 @@ const OrderController = {
   },
   deleteOrderByUser: async (req, res) => {
     try {
-      const idUser = req.query.id_user;
+      const idUser = req.user.id;
       const id = req.query.id_order;
       const order = await Order.findById(id);
-      if (!id && !idUser) {
-        res
-          .status(404)
-          .json({ message: "khong co khach hay don hang ton tai" });
-      } else if (!order) {
-        res.status(404).json({ message: "không tìm thấy kho hàng" });
-      } else if (!idUser) {
-        res.status(404).json({ message: "không tìm thấy id khach hang" });
-      } else {
-        const users = order.user;
-
-        if (idUser != users) {
-          res.status(401).json({ message: "Xoa kho không thành công" });
+      const warehouse = await Warehouse.findOne({ warehouse: order.warehouse })
+      if (order.status == 0 || order.status == 1) {
+        if (!id && !idUser) {
+          res
+            .status(404)
+            .json({ message: "khong co khach hay don hang ton tai" });
+        } else if (!order) {
+          res.status(404).json({ message: "không tìm thấy kho hàng" });
+        } else if (!idUser) {
+          res.status(404).json({ message: "không tìm thấy id khach hang" });
         } else {
-          const order = await Order.findByIdAndDelete(id);
-          const order1 = await User.updateMany({ $pull: { orders: id } });
-          const order2 = await Owner.updateMany({ $pull: { orders: id } });
-          const order3 = await Warehouse.updateMany({ $pull: { orders: id } });
+          const users = order.user;
 
-          // await User.updateMany({orders: id},{$pull: {orders:id}})
-          // await Owner.updateMany({orders: id},{$pull: {orders:id}})
-          // await Warehouse.updateMany({orders: id},{$pull: {orders:id}})
-          if (order && order1 && order2 && order3) {
-            res.status(200).json("Delete order successfully!");
+          if (idUser != users) {
+            res.status(401).json({ message: "Xoa kho không thành công" });
           } else {
-            res.status(404).json({ message: `cannot find any order` });
+            const order = await Order.findByIdAndDelete(id);
+            const order1 = await User.updateMany({ $pull: { orders: id } });
+            const order2 = await Owner.updateMany({ $pull: { orders: id } });
+            const order3 = await Warehouse.updateMany({ $pull: { orders: id } });
+
+            // await User.updateMany({orders: id},{$pull: {orders:id}})
+            // await Owner.updateMany({orders: id},{$pull: {orders:id}})
+            // await Warehouse.updateMany({orders: id},{$pull: {orders:id}})
+            if (order && order1 && order2 && order3) {
+              res.status(200).json("Delete order successfully!");
+            } else {
+              res.status(404).json({ message: `cannot find any order` });
+            }
           }
         }
+      }else if(order.status == 2){
+        await order.updateOne({$set: {status: 3}})
+        
+        await warehouse.updateOne({$set: {currentCapacity: warehouse.currentCapacity + order.capacity}})
+        res.status(200).json("Delete order successfully!");
       }
+
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
@@ -200,37 +209,48 @@ const OrderController = {
 
   deleteOrderByOwner: async (req, res) => {
     try {
-      const idOwner = req.query.id_owner;
+      const idOwner = req.user.id;
       const id = req.query.id_order;
       const order = await Order.findById(id);
-      if (!id && !idOwner) {
-        res
-          .status(404)
-          .json({ message: "khong co chu kho hay don hang ton tai" });
-      } else if (!order) {
-        res.status(404).json({ message: "không tìm thấy kho hàng" });
-      } else if (!idOwner) {
-        res.status(404).json({ message: "không tìm thấy id chu kho" });
-      } else {
-        const owner = order.owner;
-        if (idOwner != owner) {
-          res.status(401).json({ message: "Xoa kho không thành công" });
+      const warehouse = await Warehouse.findOne({ warehouse: order.warehouse })
+      if (order.status == 0 || order.status == 1) {
+        if (!id && !idOwner) {
+          res
+            .status(404)
+            .json({ message: "khong co chu kho hay don hang ton tai" });
+        } else if (!order) {
+          res.status(404).json({ message: "không tìm thấy kho hàng" });
+        } else if (!idOwner) {
+          res.status(404).json({ message: "không tìm thấy id chu kho" });
         } else {
-          const order = await Order.findByIdAndDelete(id);
-          const order1 = await User.updateMany({ $pull: { orders: id } });
-          const order2 = await Owner.updateMany({ $pull: { orders: id } });
-          const order3 = await Warehouse.updateMany({ $pull: { orders: id } });
-
-          // await User.updateMany({orders: id},{$pull: {orders:id}})
-          // await Owner.updateMany({orders: id},{$pull: {orders:id}})
-          // await Warehouse.updateMany({orders: id},{$pull: {orders:id}})
-          if (order && order1 && order2 && order3) {
-            res.status(200).json("Delete order successfully!");
+          const owner = order.owner;
+          if (idOwner != owner) {
+            res.status(401).json({ message: "Xoa kho không thành công" });
           } else {
-            res.status(404).json({ message: `cannot find any order` });
+            const order = await Order.findByIdAndDelete(id);
+            const order1 = await User.updateMany({ $pull: { orders: id } });
+            const order2 = await Owner.updateMany({ $pull: { orders: id } });
+            const order3 = await Warehouse.updateMany({ $pull: { orders: id } });
+
+            // await User.updateMany({orders: id},{$pull: {orders:id}})
+            // await Owner.updateMany({orders: id},{$pull: {orders:id}})
+            // await Warehouse.updateMany({orders: id},{$pull: {orders:id}})
+            if (order && order1 && order2 && order3) {
+              await warehouse.updateOne({ $set: { currentCapacity: warehouse.currentCapacity + order.capacity } })
+              res.status(200).json("Delete order successfully!");
+            } else {
+              res.status(404).json({ message: `cannot find any order` });
+            }
           }
         }
       }
+      else if (order.status == 2) {
+        await order.updateOne({ $set: { status: 3 } })
+
+        await warehouse.updateOne({ $set: { currentCapacity: warehouse.currentCapacity + order.capacity } })
+        res.status(200).json("Delete order successfully!");
+      }
+
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
@@ -249,7 +269,7 @@ const OrderController = {
         })
           .populate("user")
           .populate("owner")
-          .populate("warehouses");
+          .populate("warehouse");
         console.log(order);
 
         if (!order) {
@@ -276,7 +296,7 @@ const OrderController = {
         })
           .populate("user")
           .populate("owner")
-          .populate("warehouses");
+          .populate("warehouse");
         console.log(order);
         if (!order) {
           res.status(401).json({ message: "khong co don hang" });
@@ -295,7 +315,7 @@ const OrderController = {
       })
         .populate("user")
         .populate("owner")
-        .populate("warehouses");
+        .populate("warehouse");
       console.log(order);
       if (order) {
         res.status(200).json({
@@ -318,7 +338,7 @@ const OrderController = {
       const result = await Order.find(searchOptions)
         .populate("owner")
         .populate("user")
-        .populate("warehouses");
+        .populate("warehouse");
       console.log(result);
       if (result) {
         res.status(200).json({

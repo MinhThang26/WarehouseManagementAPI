@@ -14,4 +14,10 @@ router.get(
     messageController.getMessage
 );
 
+router.delete(
+    "/deleteMessage/:id",
+    middlewareController.verifyToken,
+    messageController.deleteMessage
+)
+
 module.exports = router;
