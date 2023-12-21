@@ -7,7 +7,11 @@ const cookieParser = require("cookie-parser");
 const http = require("http");
 const app = express();
 const server = http.createServer(app);
-const io = require("socket.io")(server);
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "http://localhost:3000",
+  },
+});
 
 app.use(cookieParser());
 app.use(bodyParser.json());
