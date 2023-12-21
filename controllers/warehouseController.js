@@ -2,6 +2,7 @@ const Owner = require("../models/Owner");
 const Warehouse = require("../models/Warehouse");
 const Blog = require("../models/Blog");
 const WarehouseCategory = require("../models/WarehouseCategory");
+const Order = require("../models/Order");
 
 const WarehouseController = {
     //ADD WAREHOUSE
@@ -131,11 +132,18 @@ const WarehouseController = {
             if (idOwner) {
                 const { id } = req.params;
                 const warehouses = await Warehouse.findByIdAndDelete(id);
-                const warehouses1 = await Owner.updateMany({ $pull: { warehouses: id } });
-                const blog = await Blog.findOne({warehouse: id});
-                await blog.deleteOne();
-                console.log(blog)
-                if (warehouses && warehouses1 && blog) {
+                const ownerWH = await Owner.updateMany({ $pull: { warehouses: id } });
+                const wareHouseCategory = await WarehouseCategory.updateMany({ $pull: { warehouses: id } });
+                const blogWH = await Blog.findOne({warehouse: id});
+                const order = await Order.findOne({warehouse: id})
+                console.log();
+                if (blogWH || blogWH === "null" || blogWH == "") {
+                    await blogWH.deleteOne();
+                }else if (order || order === "null" || order == "") {
+                    await order.deleteOne();
+                }
+
+                if (warehouses || ownerWH || blogWH || order || wareHouseCategory) {
                     res.status(200).json({ message: "Delete warehouse successfully!" });
                 } else {
                     res.status(404).json({ message: `cannot find any warehouses` });
@@ -146,6 +154,7 @@ const WarehouseController = {
             }
 
         } catch (error) {
+            console.log(error);
             res.status(500).json({ message: error.message });
         }
     },
