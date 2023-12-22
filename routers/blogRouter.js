@@ -8,7 +8,6 @@ router.post(
 );
 router.get(
   "/get-by-id",
-  middlewareController.verifyToken,
   blogController.getBlogById
 );
 router.get(
@@ -23,7 +22,6 @@ router.delete(
 );
 router.get(
   "/list-by-blog",
-  middlewareController.verifyToken,
   blogController.getListBlogByAll
 );
 router.put(
@@ -33,12 +31,10 @@ router.put(
 );
 router.put(
   "/likes/:bid",
-  middlewareController.verifyToken,
   blogController.likeBlog
 );
 router.put(
   "/dislikes/:bid",
-  middlewareController.verifyToken,
   blogController.disLikeBlog
 );
 
