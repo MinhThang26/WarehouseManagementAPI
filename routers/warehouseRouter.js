@@ -4,24 +4,24 @@ const middlewareController = require("../controllers/middlewareController");
 const WarehouseController = require("../controllers/warehouseController");
 
 router.get(
-  "/category/list",middlewareController.verifyToken,warehouseCategoryController.getAllCategory
+  "/category/list",warehouseCategoryController.getAllCategory
 );
 
 router.post("/create",middlewareController.verifyTokenIsOwner, 
 WarehouseController.addWarehouse);
 
-router.get("/list",middlewareController.verifyTokenIsOwner,
+router.get("/list",
 WarehouseController.getAWarehouses);
 
-router.get("/listWarehouseUser",middlewareController.verifyToken,
+router.get("/listWarehouseUser",
 WarehouseController.getAllWarehouseUser);
 
 router.put("/updateWarehouse/:id",middlewareController.verifyToken,WarehouseController.updateWarehouse);
 
 router.delete("/deleteWarehouse/:id",middlewareController.verifyTokenIsOwner,WarehouseController.deleteWarehouse);
 
-router.get("/search",middlewareController.verifyToken,WarehouseController.searchWarehouse);
+router.get("/search",WarehouseController.searchWarehouse);
 
-router.get("/getAWarehouse",middlewareController.verifyToken,WarehouseController.getAWarehouse);
+router.get("/getAWarehouse",WarehouseController.getAWarehouse);
 
 module.exports = router;
