@@ -9,7 +9,6 @@ router.post(
 );
 router.get(
   "/list-by-blog",
-  middlewareController.verifyToken,
   commentController.getListComment
 );
 router.delete(
